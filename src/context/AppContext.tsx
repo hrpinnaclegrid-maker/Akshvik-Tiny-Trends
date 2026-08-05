@@ -138,6 +138,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // Sample initial products
 const INITIAL_PRODUCTS: Product[] = [
   // 1. Newborn/Baby essentials
+  // TODO: no real image found for this product — still using placeholder
   {
     id: "p1",
     name: "Foldable Baby Mosquito Protection Net with Soft Mesh & Portable Pop-Up Design",
@@ -170,10 +171,9 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 179,
     priceRange: { min: 179, max: 537 },
     category: "Premium Cotton",
-    image: "https://images.unsplash.com/photo-1519704961756-4a55043efc6a?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/shirt & pant.webp",
     images: [
-      "https://images.unsplash.com/photo-1519704961756-4a55043efc6a?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/shirt & pant.webp"
     ],
     rating: 4.5,
     reviewsCount: 82,
@@ -195,10 +195,11 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 249,
     priceRange: { min: 249, max: 807 },
     category: "Premium Cotton",
-    image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/Jumpauit.webp",
     images: [
-      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/Jumpauit.webp",
+      "/WebsiteImages/Jumpauit1.webp",
+      "/WebsiteImages/Jumpauit2.webp"
     ],
     rating: 4.7,
     reviewsCount: 95,
@@ -212,6 +213,7 @@ const INITIAL_PRODUCTS: Product[] = [
     stockQuantity: 24,
     videoUrl: ""
   },
+  // TODO: no real image found for this product — still using placeholder
   {
     id: "p4",
     name: "Baby Girl Cotton Jumpsuit – Soft Full Sleeve Romper with Foot",
@@ -242,9 +244,14 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 599,
     priceRange: { min: 599, max: 3395 },
     category: "Girls Collection",
-    image: "https://images.unsplash.com/photo-1621452773781-0f99279668d2?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/GraceC1473L.webp",
     images: [
-      "https://images.unsplash.com/photo-1621452773781-0f99279668d2?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/GraceC1473L.webp",
+      "/WebsiteImages/gracedresses1.webp",
+      "/WebsiteImages/gracedresses2.webp",
+      "/WebsiteImages/gracedresses3.webp",
+      "/WebsiteImages/gracedresses4.webp",
+      "/WebsiteImages/gracedresses5.webp"
     ],
     rating: 4.9,
     reviewsCount: 42,
@@ -266,10 +273,12 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 229,
     priceRange: { min: 229, max: 1270 },
     category: "Muslin Collection",
-    image: "https://images.unsplash.com/photo-1515488042361-404e9250afef?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/YellowfrockRetro.webp",
     images: [
-      "https://images.unsplash.com/photo-1515488042361-404e9250afef?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/YellowfrockRetro.webp",
+      "/WebsiteImages/brownfr.webp",
+      "/WebsiteImages/greyfr.webp",
+      "/WebsiteImages/redfr.webp"
     ],
     rating: 4.8,
     reviewsCount: 110,
@@ -290,9 +299,10 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 499,
     originalPrice: 550,
     category: "Baby Essentials",
-    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/feedingpillow1.webp",
     images: [
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/feedingpillow1.webp",
+      "/WebsiteImages/feedingpillow2.webp"
     ],
     rating: 4.7,
     reviewsCount: 145,
@@ -313,9 +323,10 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 999,
     originalPrice: 1100,
     category: "Baby Essentials",
-    image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/CARRYNEST.webp",
     images: [
-      "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/CARRYNEST.webp",
+      "/WebsiteImages/BABY SLEEPING.webp"
     ],
     rating: 4.9,
     reviewsCount: 88,
@@ -330,6 +341,7 @@ const INITIAL_PRODUCTS: Product[] = [
     videoUrl: "",
     isLiveSale: true
   },
+  // TODO: no real image found for this product — still using placeholder
   {
     id: "p16",
     name: "Mini Wooden Xylophone Toy with Sticks",
@@ -428,110 +440,131 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Initialize data from localStorage or initial mock data
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedProducts = localStorage.getItem("akshvik_products");
-      if (storedProducts) {
-        // Derive correct inStock value for safety
-        const parsed = JSON.parse(storedProducts).map((p: any) => ({
-          ...p,
-          inStock: p.stockQuantity > 0
-        }));
-        setProducts(parsed);
-      } else {
-        const initial = INITIAL_PRODUCTS.map(p => ({
-          ...p,
-          inStock: p.stockQuantity > 0
-        }));
-        setProducts(initial);
-        localStorage.setItem("akshvik_products", JSON.stringify(initial));
+      try {
+        const storedProducts = localStorage.getItem("akshvik_products");
+        if (storedProducts) {
+          // Derive correct inStock value for safety and pull latest image paths
+          const parsed = JSON.parse(storedProducts).map((p: any) => {
+            const initialProduct = INITIAL_PRODUCTS.find(ip => ip.id === p.id);
+            return {
+              ...p,
+              inStock: p.stockQuantity > 0,
+              image: initialProduct ? initialProduct.image : p.image,
+              images: initialProduct ? initialProduct.images : p.images
+            };
+          });
+          setProducts(parsed);
+          localStorage.setItem("akshvik_products", JSON.stringify(parsed));
+        } else {
+          const initial = INITIAL_PRODUCTS.map(p => ({
+            ...p,
+            inStock: p.stockQuantity > 0
+          }));
+          setProducts(initial);
+          localStorage.setItem("akshvik_products", JSON.stringify(initial));
+        }
+
+        const storedCart = localStorage.getItem("akshvik_cart");
+        if (storedCart) setCart(JSON.parse(storedCart));
+
+        const storedWishlist = localStorage.getItem("akshvik_wishlist");
+        if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
+
+        const storedOrders = localStorage.getItem("akshvik_orders");
+        if (storedOrders) {
+          setOrders(JSON.parse(storedOrders));
+        } else {
+          setOrders(INITIAL_ORDERS);
+          localStorage.setItem("akshvik_orders", JSON.stringify(INITIAL_ORDERS));
+        }
+
+        // Coupons Setup
+        const storedCoupons = localStorage.getItem("akshvik_coupons");
+        if (storedCoupons) {
+          setCoupons(JSON.parse(storedCoupons));
+        } else {
+          const initialCoupons: Coupon[] = [
+            { code: "FIRSTBUY", type: "percentage", value: 10, active: true },
+            { code: "FLAT50", type: "flat", value: 50, active: true },
+            { code: "FREEGIFT", type: "free_gift", value: 0, active: true }
+          ];
+          setCoupons(initialCoupons);
+          localStorage.setItem("akshvik_coupons", JSON.stringify(initialCoupons));
+        }
+
+        // Banners Setup
+        const storedBanners = localStorage.getItem("akshvik_banners");
+        if (storedBanners) {
+          setBanners(JSON.parse(storedBanners));
+        } else {
+          const initialBanners: Banner[] = [
+            {
+              id: "b1",
+              name: "Muslin Softness Swaddle Slides",
+              type: "hero",
+              image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1200&q=80",
+              text: "Breathable, lightweight, and organic swaddles.",
+              linkUrl: "/shop?category=Muslin%20Collection",
+              active: true
+            },
+            {
+              id: "b2",
+              name: "Premium Cotton Summer Outfits",
+              type: "hero",
+              image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=80",
+              text: "Comfy rompers & sets for active play.",
+              linkUrl: "/shop?category=Premium%20Cotton",
+              active: true
+            },
+            {
+              id: "b3",
+              name: "Wooden Play & Learning Toys",
+              type: "hero",
+              image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=1200&q=80",
+              text: "Eco-friendly, safe & non-toxic toys.",
+              linkUrl: "/shop?category=Wooden%20Toys",
+              active: true
+            },
+            {
+              id: "b-live",
+              name: "Mega Live Sale!",
+              type: "live_sale",
+              image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+              text: "Mega Live Sale is Live! Grab at 50% Off.",
+              linkUrl: "/shop",
+              active: true,
+              endTime: new Date(Date.now() + 86400000 * 2).toISOString() // 2 days from now
+            },
+            {
+              id: "b-announcement",
+              name: "Top Bar Notification",
+              type: "announcement",
+              text: "🎉 Use code FIRSTBUY for 10% OFF on all organic muslin & cotton collection! Free shipping above ₹999.",
+              linkUrl: "/shop",
+              active: true
+            }
+          ];
+          setBanners(initialBanners);
+          localStorage.setItem("akshvik_banners", JSON.stringify(initialBanners));
+        }
+
+        // Lucky Winner Setup
+        const storedWinner = localStorage.getItem("akshvik_lucky_winner");
+        if (storedWinner) setLuckyWinner(storedWinner);
+      } catch (err) {
+        console.error("Local storage corruption detected, resetting to defaults", err);
+        // Clear cached keys
+        localStorage.removeItem("akshvik_products");
+        localStorage.removeItem("akshvik_cart");
+        localStorage.removeItem("akshvik_wishlist");
+        localStorage.removeItem("akshvik_orders");
+        localStorage.removeItem("akshvik_coupons");
+        localStorage.removeItem("akshvik_banners");
+        localStorage.removeItem("akshvik_lucky_winner");
+
+        // Force reload to let it initialize cleanly
+        window.location.reload();
       }
-
-      const storedCart = localStorage.getItem("akshvik_cart");
-      if (storedCart) setCart(JSON.parse(storedCart));
-
-      const storedWishlist = localStorage.getItem("akshvik_wishlist");
-      if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
-
-      const storedOrders = localStorage.getItem("akshvik_orders");
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      } else {
-        setOrders(INITIAL_ORDERS);
-        localStorage.setItem("akshvik_orders", JSON.stringify(INITIAL_ORDERS));
-      }
-
-      // Coupons Setup
-      const storedCoupons = localStorage.getItem("akshvik_coupons");
-      if (storedCoupons) {
-        setCoupons(JSON.parse(storedCoupons));
-      } else {
-        const initialCoupons: Coupon[] = [
-          { code: "FIRSTBUY", type: "percentage", value: 10, active: true },
-          { code: "FLAT50", type: "flat", value: 50, active: true },
-          { code: "FREEGIFT", type: "free_gift", value: 0, active: true }
-        ];
-        setCoupons(initialCoupons);
-        localStorage.setItem("akshvik_coupons", JSON.stringify(initialCoupons));
-      }
-
-      // Banners Setup
-      const storedBanners = localStorage.getItem("akshvik_banners");
-      if (storedBanners) {
-        setBanners(JSON.parse(storedBanners));
-      } else {
-        const initialBanners: Banner[] = [
-          {
-            id: "b1",
-            name: "Muslin Softness Swaddle Slides",
-            type: "hero",
-            image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1200&q=80",
-            text: "Breathable, lightweight, and organic swaddles.",
-            linkUrl: "/shop?category=Muslin%20Collection",
-            active: true
-          },
-          {
-            id: "b2",
-            name: "Premium Cotton Summer Outfits",
-            type: "hero",
-            image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=80",
-            text: "Comfy rompers & sets for active play.",
-            linkUrl: "/shop?category=Premium%20Cotton",
-            active: true
-          },
-          {
-            id: "b3",
-            name: "Wooden Play & Learning Toys",
-            type: "hero",
-            image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=1200&q=80",
-            text: "Eco-friendly, safe & non-toxic toys.",
-            linkUrl: "/shop?category=Wooden%20Toys",
-            active: true
-          },
-          {
-            id: "b-live",
-            name: "Mega Live Sale!",
-            type: "live_sale",
-            image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
-            text: "Mega Live Sale is Live! Grab at 50% Off.",
-            linkUrl: "/shop",
-            active: true,
-            endTime: new Date(Date.now() + 86400000 * 2).toISOString() // 2 days from now
-          },
-          {
-            id: "b-announcement",
-            name: "Top Bar Notification",
-            type: "announcement",
-            text: "🎉 Use code FIRSTBUY for 10% OFF on all organic muslin & cotton collection! Free shipping above ₹999.",
-            linkUrl: "/shop",
-            active: true
-          }
-        ];
-        setBanners(initialBanners);
-        localStorage.setItem("akshvik_banners", JSON.stringify(initialBanners));
-      }
-
-      // Lucky Winner Setup
-      const storedWinner = localStorage.getItem("akshvik_lucky_winner");
-      if (storedWinner) setLuckyWinner(storedWinner);
     }
   }, []);
 

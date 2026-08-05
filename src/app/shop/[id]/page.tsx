@@ -46,7 +46,7 @@ export default function ProductDetail({ params }: PageProps) {
   const allProducts = getProducts();
 
   // Selected Options
-  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImage, setSelectedImage] = useState(product ? product.image : "");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -264,11 +264,13 @@ export default function ProductDetail({ params }: PageProps) {
               className="bg-brand-cream-white border border-brand-cream-dark aspect-square rounded-3xl overflow-hidden shadow-xs relative cursor-zoom-in group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={selectedImage} 
-                alt={product.name} 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
+              {selectedImage && (
+                <img 
+                  src={selectedImage} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              )}
               <span className="absolute bottom-4 right-4 bg-black/60 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to Zoom
               </span>
@@ -736,13 +738,15 @@ export default function ProductDetail({ params }: PageProps) {
             <X className="h-6 w-6" />
           </button>
           
-          <div className="max-w-3xl w-full max-h-[75vh] flex justify-center items-center overflow-hidden">
+          <div className="max-w-3xl w-full max-h-[75vh] flex justify-center items-center overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={selectedImage} 
-              alt={product.name} 
-              className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl scale-100 hover:scale-125 transition-transform duration-300 cursor-zoom-in"
-            />
+            {selectedImage && (
+              <img 
+                src={selectedImage} 
+                alt={product.name} 
+                className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl scale-100 hover:scale-125 transition-transform duration-300 cursor-zoom-in"
+              />
+            )}
           </div>
           
           <p className="text-white/60 text-xs mt-4 font-semibold select-none">
