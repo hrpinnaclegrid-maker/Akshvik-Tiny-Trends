@@ -135,6 +135,10 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Increment this version string whenever product images or data structure changes.
+// A mismatch with localStorage forces a full data reset to INITIAL_PRODUCTS.
+const DATA_VERSION = "v3-brand-images";
+
 // Sample initial products
 const INITIAL_PRODUCTS: Product[] = [
   // 1. Newborn/Baby essentials
@@ -146,10 +150,10 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 399,
     originalPrice: 429,
     category: "Baby Essentials",
-    image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/CARRYNEST.webp",
     images: [
-      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/CARRYNEST.webp",
+      "/WebsiteImages/feedingpillow1.webp"
     ],
     rating: 4.8,
     reviewsCount: 124,
@@ -221,9 +225,10 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 279,
     priceRange: { min: 279, max: 942 },
     category: "Premium Cotton",
-    image: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/Babywear2.webp",
     images: [
-      "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/Babywear2.webp",
+      "/WebsiteImages/Babywear3.webp"
     ],
     rating: 4.6,
     reviewsCount: 68,
@@ -349,9 +354,9 @@ const INITIAL_PRODUCTS: Product[] = [
     price: 299,
     originalPrice: 349,
     category: "Wooden Toys",
-    image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80",
+    image: "/WebsiteImages/wooden-toys.jpg",
     images: [
-      "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80"
+      "/WebsiteImages/wooden-toys.jpg"
     ],
     rating: 4.9,
     reviewsCount: 178,
@@ -441,6 +446,15 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
+        // ── Version check: if data was saved with an older version, wipe and reset ──
+        const storedVersion = localStorage.getItem("akshvik_data_version");
+        if (storedVersion !== DATA_VERSION) {
+          // Clear all product/banner/order data so INITIAL_PRODUCTS load fresh
+          localStorage.removeItem("akshvik_products");
+          localStorage.removeItem("akshvik_banners");
+          localStorage.setItem("akshvik_data_version", DATA_VERSION);
+        }
+
         const storedProducts = localStorage.getItem("akshvik_products");
         if (storedProducts) {
           // Derive correct inStock value for safety and pull latest image paths
@@ -502,7 +516,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               id: "b1",
               name: "Muslin Softness Swaddle Slides",
               type: "hero",
-              image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=1200&q=80",
+              image: "/WebsiteImages/YellowfrockRetro.webp",
               text: "Breathable, lightweight, and organic swaddles.",
               linkUrl: "/shop?category=Muslin%20Collection",
               active: true
@@ -511,7 +525,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               id: "b2",
               name: "Premium Cotton Summer Outfits",
               type: "hero",
-              image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=80",
+              image: "/WebsiteImages/shirt & pant.webp",
               text: "Comfy rompers & sets for active play.",
               linkUrl: "/shop?category=Premium%20Cotton",
               active: true
@@ -520,7 +534,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               id: "b3",
               name: "Wooden Play & Learning Toys",
               type: "hero",
-              image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=1200&q=80",
+              image: "/WebsiteImages/Babywear.webp",
               text: "Eco-friendly, safe & non-toxic toys.",
               linkUrl: "/shop?category=Wooden%20Toys",
               active: true
@@ -529,7 +543,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               id: "b-live",
               name: "Mega Live Sale!",
               type: "live_sale",
-              image: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+              image: "/WebsiteImages/Babywear.webp",
               text: "Mega Live Sale is Live! Grab at 50% Off.",
               linkUrl: "/shop",
               active: true,

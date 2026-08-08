@@ -1,53 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #FAF6F0;
-  --foreground: #2C2520;
-}
-
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Outfit', sans-serif;
-  
-  --color-brand-cream-light: #FAF6F0;
-  --color-brand-cream-dark: #F4EFE6;
-  --color-brand-cream-white: #FFFFFF;
-  --color-brand-maroon: #6B1A24;
-  --color-brand-maroon-light: #802A35;
-  --color-brand-maroon-pale: #F6ECEF;
-  --color-brand-olive: #4E5E42;
-  --color-brand-olive-light: #617354;
-  --color-brand-olive-pale: #EBF0E9;
-  --color-brand-gold: #D4AF37;
+  /* Register fonts as CSS variables */
+  --font-sans: var(--font-nunito), sans-serif;
+  --font-quicksand: var(--font-quicksand), sans-serif;
+  --font-caveat: var(--font-caveat), cursive;
+
+  /* Register brand color tokens */
+  --color-brand-cream: #FEFCF8;
+  --color-brand-white: #FFFFFF;
+  --color-brand-green-dark: #3A5C2E;
+  --color-brand-green-soft: #EEF3EA;
+  --color-brand-sage: #D9E5CF;
+  --color-brand-orange: #E4611D;
+  --color-brand-peach: #FFEFE8;
+  --color-brand-text-muted: #6B7A63;
 }
 
 body {
-  background-color: var(--color-brand-cream-light);
-  color: var(--color-foreground);
+  background-color: var(--color-brand-cream);
+  color: var(--color-brand-green-dark);
   font-family: var(--font-sans);
 }
 
-/* Custom scrollbars for clean aesthetic */
+/* Custom scrollbars matching the brand colors */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-brand-cream-dark);
+  background: var(--color-brand-cream);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-brand-olive-light);
+  background: var(--color-brand-sage);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brand-olive);
+  background: var(--color-brand-green-dark);
 }
 
-/* Utilities for hiding scrollbars but keeping scroll function */
+/* Hide scrollbar but keep scroll functionality */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

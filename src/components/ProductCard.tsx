@@ -38,86 +38,82 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isInstagramSt
     return `₹${product.price}`;
   };
 
+  /* ── Instagram / Grid-square style ── */
   if (isInstagramStyle) {
     return (
-      <div className="group relative aspect-square w-full bg-brand-cream-light overflow-hidden rounded-xl border border-brand-cream-dark/50 hover:shadow-lg transition-all duration-300 block">
-        {/* Main Product Link wrapper */}
-        <Link 
-          href={`/shop/${product.id}`}
-          className="absolute inset-0 z-0 block w-full h-full"
-        >
-          {/* Product Image */}
+      <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-brand-sage bg-brand-green-soft hover:shadow-md transition-all duration-300 block">
+        <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0 block w-full h-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
 
         {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none font-quicksand">
           {isOutOfStock ? (
-            <span className="bg-brand-maroon text-brand-cream-light text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs">
+            <span className="text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-text-muted shadow-2xs">
               Sold Out
             </span>
           ) : product.stockQuantity <= 5 ? (
-            <span className="bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs">
+            <span className="bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs">
               Only {product.stockQuantity} Left
             </span>
           ) : product.isLiveSale ? (
-            <span className="bg-red-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs animate-pulse">
+            <span className="bg-brand-orange text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs animate-pulse">
               Live Sale
             </span>
           ) : null}
         </div>
 
-        {/* Hover-reveal overlay */}
-        <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 z-20 text-white pointer-events-none">
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-brand-green-dark/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 z-20 text-white pointer-events-none">
           <div className="flex justify-end pointer-events-auto">
             <button
               onClick={handleWishlist}
-              className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer ${
-                wishlisted 
-                  ? "bg-brand-maroon text-brand-cream-light scale-110" 
-                  : "bg-white/20 text-white hover:bg-white hover:text-brand-maroon hover:scale-105"
-              }`}
+              className="p-2 rounded-full backdrop-blur-md transition-all cursor-pointer"
+              style={
+                wishlisted
+                  ? { backgroundColor: "#E4611D", color: "#FFFFFF", transform: "scale(1.05)" }
+                  : { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
+              }
               aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
               <Heart className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`} />
             </button>
           </div>
 
-          <div className="space-y-2 pointer-events-auto">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-brand-cream-light/60 block">
+          <div className="space-y-2 pointer-events-auto font-quicksand">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-brand-sage block">
               {product.category}
             </span>
-            <h4 className="font-serif font-bold text-xs md:text-sm line-clamp-2 leading-tight">
+            <h4 className="font-semibold text-xs md:text-sm line-clamp-2 leading-tight">
               {product.name}
             </h4>
             <div className="flex items-baseline gap-1.5 font-bold text-xs md:text-sm">
-              <span className="text-brand-gold">{displayPrice()}</span>
+              <span className="text-white">{displayPrice()}</span>
               {product.originalPrice && !product.priceRange && (
-                <span className="text-[10px] text-white/50 line-through">₹{product.originalPrice}</span>
+                <span className="text-[10px] text-white/60 line-through">₹{product.originalPrice}</span>
               )}
             </div>
 
-            {/* Quick action button inside overlay */}
             {isOutOfStock ? (
-              <div className="w-full bg-white/10 text-white/60 font-semibold py-1.5 rounded-lg text-[10px] text-center uppercase tracking-wider">
+              <div className="w-full bg-white/10 text-white/60 font-semibold py-1.5 rounded-full text-[10px] text-center uppercase tracking-wider">
                 Out of Stock
               </div>
             ) : hasVariants ? (
-              <Link 
+              <Link
                 href={`/shop/${product.id}`}
-                className="w-full bg-brand-gold text-brand-maroon font-bold py-1.5 rounded-lg text-[10px] text-center uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer block"
+                className="w-full bg-white text-brand-green-dark font-bold py-1.5 rounded-full text-[10px] text-center uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer block hover:bg-brand-peach hover:text-brand-orange transition-colors"
               >
                 <Eye className="h-3 w-3" /> Select Options
               </Link>
             ) : (
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-white hover:bg-brand-cream-light text-brand-maroon font-bold py-1.5 rounded-lg text-[10px] text-center uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full bg-white text-brand-orange font-bold py-1.5 rounded-full text-[10px] text-center uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer hover:bg-brand-orange hover:text-white transition-all"
               >
                 <ShoppingCart className="h-3 w-3" /> Quick Add
               </button>
@@ -128,56 +124,58 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isInstagramSt
     );
   }
 
+  /* ── Standard Card ── */
   return (
-    <div className="group bg-brand-cream-white border border-brand-cream-dark/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col h-full relative">
-      {/* Product Image Section */}
-      <div className="relative aspect-square w-full bg-brand-cream-light overflow-hidden border-b border-brand-cream-dark/40">
+    <div className="group bg-brand-white border border-brand-sage/40 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col h-full relative">
+      {/* Image */}
+      <div className="relative aspect-square w-full overflow-hidden border-b border-brand-sage/20 bg-brand-green-soft">
         <Link href={`/shop/${product.id}`} className="block w-full h-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={product.image} 
-            alt={product.name} 
+          <img
+            src={product.image}
+            alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </Link>
 
-        {/* Wishlist Heart Icon */}
+        {/* Wishlist Heart */}
         <button
           onClick={handleWishlist}
-          className={`absolute top-3 right-3 p-2 rounded-full shadow-xs backdrop-blur-md transition-all z-10 cursor-pointer ${
-            wishlisted 
-              ? "bg-brand-maroon text-brand-cream-light scale-110" 
-              : "bg-white/80 text-brand-olive hover:text-brand-maroon hover:bg-white hover:scale-105"
-          }`}
+          className="absolute top-3 right-3 p-2 rounded-full shadow-2xs backdrop-blur-md transition-all z-10 cursor-pointer text-brand-green-dark hover:text-brand-orange hover:bg-brand-peach-pale"
+          style={
+            wishlisted
+              ? { backgroundColor: "#E4611D", color: "#FFFFFF", transform: "scale(1.05)" }
+              : { backgroundColor: "rgba(255,255,255,0.85)" }
+          }
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`} />
         </button>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none font-quicksand">
           {isOutOfStock ? (
-            <span className="bg-brand-maroon text-brand-cream-light text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
+            <span className="text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs bg-brand-text-muted">
               Sold Out
             </span>
           ) : product.stockQuantity <= 5 ? (
-            <span className="bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
+            <span className="bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs">
               Only {product.stockQuantity} Left
             </span>
           ) : product.isLiveSale ? (
-            <span className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs animate-pulse">
+            <span className="bg-brand-orange text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs animate-pulse">
               Live Sale
             </span>
           ) : null}
         </div>
       </div>
 
-      {/* Info Content */}
-      <div className="p-4 flex-1 flex flex-col">
-        <span className="text-[10px] font-semibold text-brand-olive/60 tracking-wider uppercase mb-1">
+      {/* Card Body */}
+      <div className="p-4 flex-1 flex flex-col font-quicksand">
+        <span className="text-[10px] font-bold tracking-wider uppercase mb-1 text-brand-text-muted">
           {product.category}
         </span>
-        <h3 className="font-semibold text-brand-olive text-sm md:text-base leading-snug group-hover:text-brand-maroon transition-colors line-clamp-2 mb-2 flex-1">
+        <h3 className="font-semibold text-sm md:text-base leading-snug line-clamp-2 mb-2 flex-1 text-brand-green-dark hover:text-brand-orange transition-colors">
           <Link href={`/shop/${product.id}`} className="hover:underline">
             {product.name}
           </Link>
@@ -185,32 +183,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isInstagramSt
 
         {/* Price Row */}
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-base font-bold text-brand-maroon">
+          <span className="text-base font-bold text-brand-orange">
             {displayPrice()}
           </span>
           {product.originalPrice && !product.priceRange && (
-            <span className="text-xs text-brand-olive/50 line-through">
+            <span className="text-xs line-through text-brand-text-muted">
               ₹{product.originalPrice}
             </span>
           )}
         </div>
 
-        {/* Add to Cart / Select Options button */}
+        {/* CTA Button */}
         {isOutOfStock ? (
-          <div className="w-full bg-slate-200 text-slate-500 font-semibold py-2.5 rounded-full text-xs text-center cursor-not-allowed">
+          <div className="w-full bg-brand-green-soft text-brand-text-muted/65 font-bold py-2 rounded-full text-xs text-center cursor-not-allowed">
             Out of Stock
           </div>
         ) : hasVariants ? (
-          <Link 
+          <Link
             href={`/shop/${product.id}`}
-            className="w-full bg-brand-cream-dark text-brand-olive font-semibold py-2.5 rounded-full text-xs text-center group-hover:bg-brand-olive group-hover:text-brand-cream-light transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer block"
+            className="w-full font-bold py-2 rounded-full text-xs text-center border-2 border-brand-green-dark text-brand-green-dark transition-all block hover:bg-brand-orange hover:border-brand-orange hover:text-white"
           >
             Select Options
           </Link>
         ) : (
           <button
             onClick={handleAddToCart}
-            className="w-full bg-brand-maroon hover:bg-brand-maroon-light text-brand-cream-light font-semibold py-2.5 rounded-full text-xs text-center transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full font-bold py-2 rounded-full text-xs text-center border-2 border-brand-green-dark text-brand-green-dark transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:bg-brand-orange hover:border-brand-orange hover:text-white"
           >
             <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
           </button>

@@ -110,12 +110,12 @@ export default function ProductDetail({ params }: PageProps) {
 
   if (!product) {
     return (
-      <div className="flex flex-col min-h-screen bg-brand-cream-light">
+      <div className="flex flex-col min-h-screen bg-brand-cream">
         <Header />
         <main className="flex-grow max-w-7xl mx-auto px-4 py-20 text-center">
-          <h2 className="font-serif text-2xl font-bold text-brand-maroon">Product Not Found</h2>
-          <p className="text-brand-olive/60 mt-2">The product you are looking for does not exist or has been removed.</p>
-          <Link href="/shop" className="mt-6 inline-block bg-brand-maroon text-brand-cream-light font-semibold px-6 py-2.5 rounded-full text-sm">
+          <h2 className="font-quicksand text-2xl font-bold text-brand-green-dark">Product Not Found</h2>
+          <p className="text-brand-text-muted mt-2">The product you are looking for does not exist or has been removed.</p>
+          <Link href="/shop" className="mt-6 inline-block bg-brand-orange hover:bg-brand-orange/90 text-white font-bold px-6 py-2.5 rounded-full text-sm font-quicksand transition shadow-sm">
             Back to Shop
           </Link>
         </main>
@@ -229,29 +229,29 @@ export default function ProductDetail({ params }: PageProps) {
   const reviewsCount = localReviews.length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-cream-light">
+    <div className="flex flex-col min-h-screen bg-brand-cream">
       <Header />
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         {/* Toast Alert */}
         {shareToast && (
-          <div className="fixed bottom-6 right-6 z-50 bg-brand-olive text-brand-cream-light px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold border border-brand-cream-dark">
+          <div className="fixed bottom-6 right-6 z-50 bg-brand-green-dark text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold border border-brand-sage/40">
             {shareToast}
           </div>
         )}
 
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-1.5 text-xs font-semibold text-brand-olive/60 mb-8 overflow-x-auto whitespace-nowrap pb-2">
-          <Link href="/" className="hover:text-brand-maroon transition-colors">Home</Link>
+        <nav className="flex items-center gap-1.5 text-xs font-semibold text-brand-text-muted mb-8 overflow-x-auto whitespace-nowrap pb-2 font-quicksand">
+          <Link href="/" className="hover:text-brand-orange transition-colors">Home</Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <Link href="/shop" className="hover:text-brand-maroon transition-colors">Shop</Link>
+          <Link href="/shop" className="hover:text-brand-orange transition-colors">Shop</Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <Link href={`/shop?category=${encodeURIComponent(product.category)}`} className="hover:text-brand-maroon transition-colors">
+          <Link href={`/shop?category=${encodeURIComponent(product.category)}`} className="hover:text-brand-orange transition-colors">
             {product.category}
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-brand-olive truncate max-w-xs">{product.name}</span>
+          <span className="text-brand-green-dark truncate max-w-xs">{product.name}</span>
         </nav>
 
         {/* Product Details Grid */}
@@ -261,17 +261,17 @@ export default function ProductDetail({ params }: PageProps) {
           <div className="space-y-4">
             <div 
               onClick={() => setIsLightboxOpen(true)}
-              className="bg-brand-cream-white border border-brand-cream-dark aspect-square rounded-3xl overflow-hidden shadow-xs relative cursor-zoom-in group"
+              className="bg-brand-white border border-brand-sage/40 aspect-square rounded-3xl overflow-hidden shadow-xs relative cursor-zoom-in group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {selectedImage && (
                 <img 
                   src={selectedImage} 
                   alt={product.name} 
-                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 p-4"
                 />
               )}
-              <span className="absolute bottom-4 right-4 bg-black/60 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="absolute bottom-4 right-4 bg-brand-green-dark/80 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to Zoom
               </span>
             </div>
@@ -283,10 +283,10 @@ export default function ProductDetail({ params }: PageProps) {
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(img)}
-                    className={`w-20 h-20 rounded-2xl bg-brand-cream-white border overflow-hidden flex-shrink-0 transition-all ${
+                    className={`w-20 h-20 rounded-2xl bg-brand-white border overflow-hidden flex-shrink-0 transition-all ${
                       selectedImage === img 
-                        ? "border-brand-maroon scale-95 ring-2 ring-brand-maroon/15" 
-                        : "border-brand-cream-dark/60 opacity-70 hover:opacity-100"
+                        ? "border-brand-orange scale-95 ring-2 ring-brand-orange/20" 
+                        : "border-brand-sage/40 opacity-70 hover:opacity-100"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -301,43 +301,43 @@ export default function ProductDetail({ params }: PageProps) {
           <div className="space-y-6">
             <div>
               <div className="flex justify-between items-start gap-4">
-                <span className="bg-brand-olive-pale text-brand-olive text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                <span className="bg-brand-green-soft text-brand-green-dark text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full font-quicksand">
                   {product.category}
                 </span>
                 
                 {/* Web Share Button */}
                 <button
                   onClick={handleShare}
-                  className="p-2 text-brand-olive hover:text-brand-maroon hover:bg-brand-cream-light transition-colors rounded-full border border-brand-cream-dark/50"
+                  className="p-2 text-brand-green-dark hover:text-brand-orange hover:bg-brand-green-soft transition-colors rounded-full border border-brand-sage/40"
                   title="Share product"
                 >
                   <Share2 className="h-4.5 w-4.5" />
                 </button>
               </div>
 
-              <h1 className="font-serif text-2xl md:text-3.5xl font-bold text-brand-olive leading-tight mt-4">
+              <h1 className="font-quicksand text-2xl md:text-3.5xl font-bold text-brand-green-dark leading-tight mt-4">
                 {product.name}
               </h1>
 
               {/* Rating and Derived Stock */}
               <div className="flex items-center gap-4 mt-3">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 font-quicksand">
                   {Array.from({ length: 5 }, (_, i) => (
                     <Star 
                       key={i} 
                       className={`h-4 w-4 ${
                         i < Math.floor(Number(avgRating)) 
-                          ? "text-brand-gold fill-current" 
-                          : "text-brand-cream-dark fill-current"
+                          ? "text-brand-orange fill-current" 
+                          : "text-brand-sage/40 fill-current"
                       }`} 
                     />
                   ))}
-                  <span className="text-xs font-bold text-brand-olive ml-1">{avgRating} ({reviewsCount} reviews)</span>
+                  <span className="text-xs font-bold text-brand-green-dark ml-1">{avgRating} ({reviewsCount} reviews)</span>
                 </div>
                 
-                <span className="text-brand-cream-dark">|</span>
+                <span className="text-brand-sage/40">|</span>
                 
-                <span className={`text-xs font-bold flex items-center gap-1 ${isOutOfStock ? "text-brand-maroon" : "text-emerald-700"}`}>
+                <span className={`text-xs font-bold flex items-center gap-1 ${isOutOfStock ? "text-brand-orange" : "text-emerald-700"}`}>
                   <span className="text-lg leading-none">●</span>
                   {isOutOfStock 
                     ? "Out of Stock" 
@@ -350,17 +350,17 @@ export default function ProductDetail({ params }: PageProps) {
             </div>
 
             {/* SKU, Brand & Fabric metadata */}
-            <div className="bg-brand-cream-white/70 border border-brand-cream-dark/40 rounded-2xl p-4 text-xs space-y-2 text-brand-olive font-semibold">
-              {product.sku && <div><span className="text-brand-olive/60 font-bold uppercase tracking-wider block">SKU Code:</span> {product.sku}</div>}
-              {product.brand && <div><span className="text-brand-olive/60 font-bold uppercase tracking-wider block">Brand:</span> {product.brand}</div>}
-              {product.fabric && <div><span className="text-brand-olive/60 font-bold uppercase tracking-wider block">Fabric / Material:</span> {product.fabric}</div>}
+            <div className="bg-brand-white border border-brand-sage/40 rounded-2xl p-4 text-xs space-y-2 text-brand-green-dark font-semibold">
+              {product.sku && <div><span className="text-brand-text-muted font-bold uppercase tracking-wider block">SKU Code:</span> {product.sku}</div>}
+              {product.brand && <div><span className="text-brand-text-muted font-bold uppercase tracking-wider block">Brand:</span> {product.brand}</div>}
+              {product.fabric && <div><span className="text-brand-text-muted font-bold uppercase tracking-wider block">Fabric / Material:</span> {product.fabric}</div>}
               {product.videoUrl && (
                 <div className="pt-1.5">
                   <a 
                     href={product.videoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-1 text-brand-maroon font-bold hover:underline"
+                    className="inline-flex items-center gap-1 text-brand-orange font-bold hover:underline"
                   >
                     🎥 View Product Video Demo
                   </a>
@@ -369,17 +369,17 @@ export default function ProductDetail({ params }: PageProps) {
             </div>
 
             {/* Price Display */}
-            <div className="flex items-baseline gap-3 border-y border-brand-cream-dark/60 py-4">
-              <span className="text-2xl md:text-3xl font-bold text-brand-maroon">
+            <div className="flex items-baseline gap-3 border-y border-brand-sage/40 py-4">
+              <span className="text-2xl md:text-3xl font-bold text-brand-orange font-quicksand">
                 {product.offerPrice ? `₹${product.offerPrice}` : `₹${product.price}`}
               </span>
               {(product.offerPrice || product.originalPrice) && (
-                <span className="text-base text-brand-olive/50 line-through">
+                <span className="text-base text-brand-text-muted line-through">
                   ₹{product.offerPrice ? product.price : product.originalPrice}
                 </span>
               )}
               {product.originalPrice && (
-                <span className="text-xs bg-brand-maroon text-brand-cream-light font-bold px-2 py-0.5 rounded-md">
+                <span className="text-xs bg-brand-orange text-white font-bold px-2 py-0.5 rounded-full font-quicksand">
                   SAVE {Math.round(((product.originalPrice - (product.offerPrice || product.price)) / product.originalPrice) * 100)}%
                 </span>
               )}
@@ -388,16 +388,16 @@ export default function ProductDetail({ params }: PageProps) {
             {/* Options Selector: Sizes */}
             {product.sizes && product.sizes.length > 0 && (
               <div>
-                <span className="text-xs font-bold text-brand-olive/80 uppercase tracking-wider">Select Size Range:</span>
+                <span className="text-xs font-bold text-brand-green-dark uppercase tracking-wider font-quicksand">Select Size Range:</span>
                 <div className="flex flex-wrap gap-2.5 mt-2">
                   {product.sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`text-xs font-bold px-4 py-2.5 rounded-xl border transition ${
+                      className={`text-xs font-bold px-4 py-2.5 rounded-xl border transition font-quicksand ${
                         selectedSize === size
-                          ? "bg-brand-maroon border-brand-maroon text-brand-cream-light shadow-xs"
-                          : "bg-brand-cream-white border-brand-cream-dark text-brand-olive hover:border-brand-maroon"
+                          ? "bg-brand-orange border-brand-orange text-white shadow-xs"
+                          : "bg-brand-white border-brand-sage/40 text-brand-green-dark hover:border-brand-orange"
                       }`}
                     >
                       {size}
@@ -410,16 +410,16 @@ export default function ProductDetail({ params }: PageProps) {
             {/* Options Selector: Colors */}
             {product.colors && product.colors.length > 0 && (
               <div>
-                <span className="text-xs font-bold text-brand-olive/80 uppercase tracking-wider">Select Color:</span>
+                <span className="text-xs font-bold text-brand-green-dark uppercase tracking-wider font-quicksand">Select Color:</span>
                 <div className="flex flex-wrap gap-2.5 mt-2">
                   {product.colors.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`text-xs font-bold px-4 py-2.5 rounded-xl border transition ${
+                      className={`text-xs font-bold px-4 py-2.5 rounded-xl border transition font-quicksand ${
                         selectedColor === color
-                          ? "bg-brand-olive border-brand-olive text-brand-cream-light shadow-xs"
-                          : "bg-brand-cream-white border-brand-cream-dark text-brand-olive hover:border-brand-maroon"
+                          ? "bg-brand-green-dark border-brand-green-dark text-white shadow-xs"
+                          : "bg-brand-white border-brand-sage/40 text-brand-green-dark hover:border-brand-orange"
                       }`}
                     >
                       {color}
@@ -430,20 +430,20 @@ export default function ProductDetail({ params }: PageProps) {
             )}
 
             {/* Quantity and Actions */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 border-t border-brand-cream-dark/60">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 border-t border-brand-sage/40">
               {/* Stepper */}
-              <div className="flex items-center justify-between border border-brand-cream-dark rounded-xl bg-brand-cream-white p-1.5 h-12 w-32 mx-auto sm:mx-0">
+              <div className="flex items-center justify-between border border-brand-sage/40 rounded-full bg-brand-white p-1 h-12 w-32 mx-auto sm:mx-0">
                 <button 
                   onClick={() => setQuantity((prev) => Math.max(prev - 1, 1))}
-                  className="p-2 text-brand-olive hover:text-brand-maroon"
+                  className="p-2 text-brand-green-dark hover:text-brand-orange"
                   disabled={isOutOfStock}
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="font-bold text-brand-olive px-3">{quantity}</span>
+                <span className="font-bold text-brand-green-dark px-3 font-quicksand">{quantity}</span>
                 <button 
                   onClick={() => setQuantity((prev) => prev + 1)}
-                  className="p-2 text-brand-olive hover:text-brand-maroon"
+                  className="p-2 text-brand-green-dark hover:text-brand-orange"
                   disabled={isOutOfStock}
                 >
                   <Plus className="h-4 w-4" />
@@ -455,14 +455,14 @@ export default function ProductDetail({ params }: PageProps) {
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className="flex-1 bg-brand-olive hover:bg-brand-olive-light disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-brand-cream-light font-semibold h-12 rounded-xl transition shadow-xs flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="flex-1 border-2 border-brand-green-dark hover:bg-brand-green-dark hover:text-white disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-brand-green-dark font-bold font-quicksand h-12 rounded-full transition flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   <ShoppingCart className="h-4 w-4" /> Add to Cart
                 </button>
                 <button
                   onClick={handleBuyNow}
                   disabled={isOutOfStock}
-                  className="flex-1 bg-brand-maroon hover:bg-brand-maroon-light disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-brand-cream-light font-semibold h-12 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed font-bold font-quicksand h-12 rounded-full transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   Buy Now
                 </button>
@@ -470,10 +470,10 @@ export default function ProductDetail({ params }: PageProps) {
                 {/* Wishlist toggle */}
                 <button
                   onClick={() => toggleWishlist(product.id)}
-                  className={`p-3 rounded-xl border flex items-center justify-center transition-all ${
+                  className={`p-3 rounded-full border flex items-center justify-center transition-all ${
                     wishlisted 
-                      ? "bg-brand-maroon border-brand-maroon text-brand-cream-light shadow-xs" 
-                      : "bg-brand-cream-white border-brand-cream-dark text-brand-olive hover:border-brand-maroon"
+                      ? "bg-brand-orange border-brand-orange text-white shadow-xs" 
+                      : "bg-brand-white border-brand-sage/40 text-brand-green-dark hover:border-brand-orange"
                   }`}
                   title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 >
@@ -507,8 +507,8 @@ export default function ProductDetail({ params }: PageProps) {
             </div>
 
             {/* Delivery Estimation Widget */}
-            <div className="bg-brand-cream-white/70 border border-brand-cream-dark/50 rounded-2xl p-4 space-y-3">
-              <span className="text-xs font-bold text-brand-olive uppercase tracking-wider block">Check Delivery Date Estimate:</span>
+            <div className="bg-brand-white border border-brand-sage/40 rounded-2xl p-4 space-y-3">
+              <span className="text-xs font-bold text-brand-green-dark uppercase tracking-wider block font-quicksand">Check Delivery Date Estimate:</span>
               <form onSubmit={handlePincodeCheck} className="flex gap-2 text-xs">
                 <input 
                   type="text" 
@@ -516,35 +516,35 @@ export default function ProductDetail({ params }: PageProps) {
                   placeholder="Enter 6-digit Pincode"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                  className="bg-white border border-brand-cream-dark rounded-xl px-3 py-2 flex-1 font-semibold text-brand-olive"
+                  className="bg-white border border-brand-sage/40 rounded-xl px-3 py-2 flex-1 font-semibold text-brand-green-dark font-quicksand focus:outline-none focus:ring-1 focus:ring-brand-orange"
                 />
                 <button 
                   type="submit" 
-                  className="bg-brand-olive hover:bg-brand-maroon text-brand-cream-light font-bold px-4 py-2 rounded-xl transition"
+                  className="bg-brand-orange hover:bg-brand-orange/90 text-white font-bold px-4 py-2 rounded-xl transition font-quicksand cursor-pointer"
                 >
                   Check
                 </button>
               </form>
               {pincodeResult && (
-                <p className="text-xs font-bold text-emerald-800 flex items-center gap-1 animate-pulse">
+                <p className="text-xs font-bold text-emerald-800 flex items-center gap-1">
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-700" /> {pincodeResult}
                 </p>
               )}
             </div>
 
             {/* Shipping & Value Highlights */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-brand-cream-dark/60 text-center text-[10px] md:text-xs font-semibold text-brand-olive/80">
-              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-cream-white rounded-2xl border border-brand-cream-dark/30">
-                <Truck className="h-5 w-5 text-brand-maroon" />
-                <span>Free Ship Above ₹999</span>
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-brand-sage/40 text-center text-[10px] md:text-xs font-semibold text-brand-green-dark">
+              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-white rounded-2xl border border-brand-sage/20 shadow-2xs">
+                <Truck className="h-5 w-5 text-brand-orange" />
+                <span className="font-quicksand">Free Ship Above ₹999</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-cream-white rounded-2xl border border-brand-cream-dark/30">
-                <RotateCcw className="h-5 w-5 text-brand-maroon" />
-                <span>7 Days Returns</span>
+              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-white rounded-2xl border border-brand-sage/20 shadow-2xs">
+                <RotateCcw className="h-5 w-5 text-brand-orange" />
+                <span className="font-quicksand">7 Days Returns</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-cream-white rounded-2xl border border-brand-cream-dark/30">
-                <ShieldCheck className="h-5 w-5 text-brand-maroon" />
-                <span>100% Skin Safe</span>
+              <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-white rounded-2xl border border-brand-sage/20 shadow-2xs">
+                <ShieldCheck className="h-5 w-5 text-brand-orange" />
+                <span className="font-quicksand">100% Skin Safe</span>
               </div>
             </div>
 
@@ -552,13 +552,13 @@ export default function ProductDetail({ params }: PageProps) {
         </div>
 
         {/* ================= DESCRIPTION & REVIEWS TABS ================= */}
-        <section className="mt-16 bg-brand-cream-white border border-brand-cream-dark/80 rounded-3xl overflow-hidden shadow-xs">
+        <section className="mt-16 bg-brand-white border border-brand-sage/40 rounded-3xl overflow-hidden shadow-xs">
           {/* Tab Buttons */}
-          <div className="flex border-b border-brand-cream-dark bg-brand-cream-dark/20 text-xs md:text-sm font-bold text-brand-olive">
+          <div className="flex border-b border-brand-sage/40 bg-brand-green-soft text-xs md:text-sm font-bold text-brand-green-dark font-quicksand">
             <button
               onClick={() => setActiveTab("description")}
               className={`flex-1 py-4 text-center transition ${
-                activeTab === "description" ? "bg-brand-cream-white text-brand-maroon border-t-2 border-brand-maroon" : "hover:text-brand-maroon"
+                activeTab === "description" ? "bg-brand-white text-brand-orange border-t-2 border-brand-orange" : "hover:text-brand-orange"
               }`}
             >
               Description
@@ -566,7 +566,7 @@ export default function ProductDetail({ params }: PageProps) {
             <button
               onClick={() => setActiveTab("fabric")}
               className={`flex-1 py-4 text-center transition ${
-                activeTab === "fabric" ? "bg-brand-cream-white text-brand-maroon border-t-2 border-brand-maroon" : "hover:text-brand-maroon"
+                activeTab === "fabric" ? "bg-brand-white text-brand-orange border-t-2 border-brand-orange" : "hover:text-brand-orange"
               }`}
             >
               Fabric & Care
@@ -574,7 +574,7 @@ export default function ProductDetail({ params }: PageProps) {
             <button
               onClick={() => setActiveTab("reviews")}
               className={`flex-1 py-4 text-center transition ${
-                activeTab === "reviews" ? "bg-brand-cream-white text-brand-maroon border-t-2 border-brand-maroon" : "hover:text-brand-maroon"
+                activeTab === "reviews" ? "bg-brand-white text-brand-orange border-t-2 border-brand-orange" : "hover:text-brand-orange"
               }`}
             >
               Reviews ({reviewsCount})
@@ -582,7 +582,7 @@ export default function ProductDetail({ params }: PageProps) {
             <button
               onClick={() => setActiveTab("shipping")}
               className={`flex-1 py-4 text-center transition ${
-                activeTab === "shipping" ? "bg-brand-cream-white text-brand-maroon border-t-2 border-brand-maroon" : "hover:text-brand-maroon"
+                activeTab === "shipping" ? "bg-brand-white text-brand-orange border-t-2 border-brand-orange" : "hover:text-brand-orange"
               }`}
             >
               Shipping & Policy
@@ -592,23 +592,23 @@ export default function ProductDetail({ params }: PageProps) {
           {/* Tab Content */}
           <div className="p-6 md:p-8 text-sm text-brand-olive/80 leading-relaxed space-y-4">
             {activeTab === "description" && (
-              <>
-                <h3 className="font-bold text-base text-brand-olive font-serif">Product Description</h3>
-                <p>{product.description}</p>
-                <p>Designed with maximum comfort in mind. Akshvik Tiny Trends sources only sustainable, chemical-free materials. Ideal for all-day playtime, casual lounging, or nap time.</p>
-              </>
+              <div className="font-sans">
+                <h3 className="font-bold text-base text-brand-green-dark font-quicksand">Product Description</h3>
+                <p className="mt-2 text-brand-green-dark/80">{product.description}</p>
+                <p className="mt-2 text-brand-green-dark/80">Designed with maximum comfort in mind. Akshvik Tiny Trends sources only sustainable, chemical-free materials. Ideal for all-day playtime, casual lounging, or nap time.</p>
+              </div>
             )}
 
             {activeTab === "fabric" && (
-              <>
-                <h3 className="font-bold text-base text-brand-olive font-serif">Fabric & Washing instructions</h3>
-                <ul className="list-disc pl-5 space-y-1.5">
+              <div className="font-sans">
+                <h3 className="font-bold text-base text-brand-green-dark font-quicksand">Fabric & Washing instructions</h3>
+                <ul className="list-disc pl-5 mt-2 space-y-1.5 text-brand-green-dark/80">
                   <li>Material: 100% GOTS certified organic cotton / double-layered cotton muslin.</li>
                   <li>Incredibly soft and lightweight knit structure that becomes softer with every single wash.</li>
                   <li>Dyes used: Safe, non-toxic, skin-friendly dyes.</li>
                   <li>Wash Care: Gentle machine wash or hand wash in cold water with a mild, baby-safe detergent. Do not bleach. Tumble dry low or line dry in shade. Warm iron if needed.</li>
                 </ul>
-              </>
+              </div>
             )}
 
             {activeTab === "reviews" && (
