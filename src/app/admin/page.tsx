@@ -22,8 +22,327 @@ import {
   Megaphone,
   Printer,
   Check,
-  Percent
+  Percent,
+  Key,
+  Upload,
+  Move,
+  CloudUpload
 } from "lucide-react";
+
+const DragRepositionImage = ({
+  src,
+  position = "50% 50%",
+  onSave
+}: {
+  src: string;
+  position?: string;
+  onSave: (newPos: string) => void;
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [currentPos, setCurrentPos] = useState(position);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const dragStart = React.useRef({ x: 0, y: 0, posX: 50, posY: 50 });
+
+  React.useEffect(() => {
+    setCurrentPos(position);
+  }, [position]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!containerRef.current) return;
+    
+    setIsDragging(true);
+    
+    // Parse current position
+    let posX = 50;
+    let posY = 50;
+    const parts = currentPos.split(" ");
+    if (parts.length === 2) {
+      posX = parseFloat(parts[0]) || 50;
+      posY = parseFloat(parts[1]) || 50;
+    } else if (currentPos === "top") { posY = 0; }
+    else if (currentPos === "bottom") { posY = 100; }
+    else if (currentPos === "center") { posY = 50; }
+
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      posX,
+      posY
+    };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    
+    const deltaX = e.clientX - dragStart.current.x;
+    const deltaY = e.clientY - dragStart.current.y;
+    
+    const pctX = dragStart.current.posX - (deltaX / rect.width) * 100;
+    const pctY = dragStart.current.posY - (deltaY / rect.height) * 100;
+    
+    const clampedX = Math.max(0, Math.min(100, pctX));
+    const clampedY = Math.max(0, Math.min(100, pctY));
+    
+    setCurrentPos(`${Math.round(clampedX)}% ${Math.round(clampedY)}%`);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      onSave(currentPos);
+    }
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={(e) => {
+        const touch = e.touches[0];
+        if (!containerRef.current) return;
+        setIsDragging(true);
+        let posX = 50;
+        let posY = 50;
+        const parts = currentPos.split(" ");
+        if (parts.length === 2) {
+          posX = parseFloat(parts[0]) || 50;
+          posY = parseFloat(parts[1]) || 50;
+        }
+        dragStart.current = { x: touch.clientX, y: touch.clientY, posX, posY };
+      }}
+      onTouchMove={(e) => {
+        if (!isDragging || !containerRef.current) return;
+        const touch = e.touches[0];
+        const rect = containerRef.current.getBoundingClientRect();
+        const deltaX = touch.clientX - dragStart.current.x;
+        const deltaY = touch.clientY - dragStart.current.y;
+        const pctX = dragStart.current.posX - (deltaX / rect.width) * 100;
+        const pctY = dragStart.current.posY - (deltaY / rect.height) * 100;
+        const clampedX = Math.max(0, Math.min(100, pctX));
+        const clampedY = Math.max(0, Math.min(100, pctY));
+        setCurrentPos(`${Math.round(clampedX)}% ${Math.round(clampedY)}%`);
+      }}
+      onTouchEnd={handleMouseUp}
+      className="w-full h-36 relative bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 select-none cursor-move group"
+    >
+      <img 
+        src={src} 
+        alt="Banner graphic" 
+        className="w-full h-full pointer-events-none object-cover"
+        style={{
+          objectPosition: currentPos
+        }}
+      />
+      <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors pointer-events-none flex items-center justify-center">
+        <div className="bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm opacity-90 group-hover:opacity-100 transition">
+          <Move className="h-3 w-3 animate-pulse" /> Drag Image to Position
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PrimaryImageUploader = ({
+  value,
+  onChange,
+  onUpload
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  onUpload: (file: File) => Promise<string>;
+}) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const processFile = async (file: File) => {
+    if (!file) return;
+    setLoading(true);
+    try {
+      const url = await onUpload(file);
+      onChange(url);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1">
+        Primary Image
+      </label>
+      
+      <div
+        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={async (e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file) await processFile(file);
+        }}
+        onClick={() => fileInputRef.current?.click()}
+        className={`w-full border-1.5 border-dashed rounded-[8px] p-6 text-center cursor-pointer transition-all ${
+          isDragOver 
+            ? "border-[#6366f1] bg-[#eef2ff]" 
+            : "border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#6366f1] hover:bg-[#eef2ff]"
+        } flex flex-col items-center justify-center`}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) await processFile(file);
+          }}
+          className="hidden"
+          accept="image/*"
+        />
+        <CloudUpload className="h-8 w-8 text-[#6366f1] mb-2" />
+        <span className="text-[12px] font-bold text-[#1e293b]">
+          {loading ? "Uploading..." : "Drag & drop or click to upload"}
+        </span>
+        <span className="text-[10px] text-slate-400 mt-1">PNG, JPG, WEBP up to 5MB</span>
+      </div>
+
+      <div className="flex gap-4 items-end">
+        {value && (
+          <div className="relative w-20 h-20 bg-slate-50 border border-slate-200 rounded-[8px] overflow-hidden flex-shrink-0">
+            <img src={value} alt="Preview" className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="absolute top-1 right-1 p-0.5 bg-black/60 hover:bg-black text-white rounded-full transition cursor-pointer flex items-center justify-center"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+        <div className="flex-1">
+          <label className="font-sans text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748b] block mb-1">
+            Or paste image URL
+          </label>
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://example.com/image.jpg"
+            className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GalleryImageUploader = ({
+  value,
+  onChange,
+  onUpload
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  onUpload: (file: File) => Promise<string>;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const getImagesList = () => {
+    return value
+      .split(",")
+      .map((img) => img.trim())
+      .filter(Boolean);
+  };
+
+  const handleRemove = (index: number) => {
+    const list = getImagesList();
+    list.splice(index, 1);
+    onChange(list.join(", "));
+  };
+
+  const processFile = async (file: File) => {
+    if (!file) return;
+    setLoading(true);
+    try {
+      const url = await onUpload(file);
+      const list = getImagesList();
+      list.push(url);
+      onChange(list.join(", "));
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const images = getImagesList();
+
+  return (
+    <div className="space-y-3">
+      <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1">
+        Gallery Images
+      </label>
+
+      <div className="flex flex-wrap gap-3 items-center">
+        {images.map((img, index) => (
+          <div 
+            key={index}
+            className="relative w-20 h-20 bg-slate-50 border border-slate-200 rounded-[8px] overflow-hidden flex-shrink-0"
+          >
+            <img src={img} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={() => handleRemove(index)}
+              className="absolute top-1 right-1 p-0.5 bg-black/60 hover:bg-black text-white rounded-full transition cursor-pointer flex items-center justify-center"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="w-20 h-20 border-1.5 border-dashed border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#6366f1] hover:bg-[#eef2ff] rounded-[8px] flex flex-col items-center justify-center cursor-pointer transition-all flex-shrink-0"
+        >
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) await processFile(file);
+            }}
+            className="hidden"
+            accept="image/*"
+          />
+          <Plus className="h-5 w-5 text-[#6366f1]" />
+          <span className="text-[9px] text-[#6366f1] font-bold mt-1">
+            {loading ? "..." : "Add"}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <label className="font-sans text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748b] block mb-1">
+          Or paste comma-separated URLs
+        </label>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="url1, url2, url3"
+          className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function AdminPage() {
   const { 
@@ -47,6 +366,108 @@ export default function AdminPage() {
 
   const products = getProducts();
   const orders = getOrders();
+
+  const handleBannerImageUpload = async (bannerId: string, file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      updateBanner(bannerId, { image: data.url });
+    } catch (err: any) {
+      alert("Error uploading image: " + err.message);
+    }
+  };
+
+  const uploadImageFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    const data = await res.json();
+    return data.url;
+  };
+
+  // Authentication States
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [changePasswordError, setChangePasswordError] = useState("");
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState("");
+
+  // Check auth on load
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const auth = sessionStorage.getItem("akshvik_admin_auth");
+      if (auth === "true") {
+        setIsAuthenticated(true);
+      }
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: loginPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem("akshvik_admin_auth", "true");
+        setIsAuthenticated(true);
+        setLoginPassword("");
+      } else {
+        setLoginError(data.error || "Incorrect password");
+      }
+    } catch (err) {
+      setLoginError("Failed to authenticate");
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("akshvik_admin_auth");
+    setIsAuthenticated(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePasswordError("");
+    setChangePasswordSuccess("");
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setChangePasswordSuccess("Password updated successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setTimeout(() => {
+          setIsChangePasswordOpen(false);
+          setChangePasswordSuccess("");
+        }, 1500);
+      } else {
+        setChangePasswordError(data.error || "Failed to update password");
+      }
+    } catch (err) {
+      setChangePasswordError("Failed to update password");
+    }
+  };
 
   // Active View Tab: 'dashboard' | 'products' | 'orders' | 'categories' | 'customers' | 'coupons' | 'banners'
   const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "orders" | "categories" | "customers" | "coupons" | "banners">("dashboard");
@@ -299,7 +720,7 @@ export default function AdminPage() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Invoice - ${order.id}</title>
+          <title>Invoice - ${order.orderId}</title>
           <style>
             body { font-family: sans-serif; padding: 40px; color: #333; }
             h1 { color: #800020; font-family: serif; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
@@ -315,7 +736,7 @@ export default function AdminPage() {
           <h1>AKSHVIK TINY TRENDS - INVOICE</h1>
           <div class="grid">
             <div>
-              <strong>Order ID:</strong> ${order.id}<br>
+              <strong>Order ID:</strong> ${order.orderId}<br>
               <strong>Date:</strong> ${new Date(order.createdAt).toLocaleString("en-IN")}<br>
               <strong>Status:</strong> ${order.orderStatus}
             </div>
@@ -383,7 +804,7 @@ export default function AdminPage() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Shipping Label - ${order.id}</title>
+          <title>Shipping Label - ${order.orderId}</title>
           <style>
             body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 90vh; }
             .label-box { border: 4px dashed #333; padding: 30px; width: 400px; text-align: left; }
@@ -407,7 +828,7 @@ export default function AdminPage() {
               Phone: ${order.customerPhone}
             </div>
             <div style="border-top: 1px solid #ccc; padding-top: 10px;">
-              <strong>ORDER ID:</strong> ${order.id}<br>
+              <strong>ORDER ID:</strong> ${order.orderId}<br>
               <strong>Payment Method:</strong> ${order.paymentMethod}
             </div>
             <div class="barcode"></div>
@@ -418,6 +839,59 @@ export default function AdminPage() {
     `);
     printWindow.document.close();
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-3xl border border-slate-100 shadow-xl">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900 font-serif">
+              Akshvik Admin Login
+            </h2>
+            <p className="mt-2 text-center text-sm text-slate-600">
+              Enter password to access the portal
+            </p>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+            <div className="rounded-md shadow-xs">
+              <div>
+                <label className="sr-only">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="relative block w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-950 placeholder-slate-400 focus:z-10 focus:border-indigo-500 focus:outline-hidden focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Enter Admin Password"
+                />
+              </div>
+            </div>
+
+            {loginError && (
+              <div className="text-rose-600 text-sm text-center font-medium bg-rose-50 p-3 rounded-xl border border-rose-100">
+                {loginError}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                className="group relative flex w-full justify-center rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition cursor-pointer"
+              >
+                Log In
+              </button>
+            </div>
+            
+            <div className="text-center">
+              <Link href="/" className="text-sm font-medium text-slate-500 hover:text-slate-800">
+                Return to Storefront
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
@@ -501,6 +975,7 @@ export default function AdminPage() {
         <div className="p-4 border-t border-slate-800">
           <Link 
             href="/" 
+            onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition"
           >
             <LogOut className="h-4 w-4" /> Exit to Store
@@ -513,8 +988,20 @@ export default function AdminPage() {
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
           <h2 className="text-lg font-bold text-slate-800 capitalize">{activeTab} Overview</h2>
-          <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
-            <span>Server Status: <strong className="text-emerald-500">Online</strong></span>
+          <div className="flex items-center gap-6 text-sm font-medium">
+            <span className="text-slate-500">Server Status: <strong className="text-emerald-500 font-semibold">Online</strong></span>
+            <button
+              onClick={() => setIsChangePasswordOpen(true)}
+              className="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+            >
+              <Key className="h-4 w-4" /> Change Password
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-rose-600 hover:text-rose-800 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+            >
+              <LogOut className="h-4 w-4" /> Logout
+            </button>
           </div>
         </header>
 
@@ -659,8 +1146,8 @@ export default function AdminPage() {
               </div>
 
               {/* Quick info note */}
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-sm text-blue-800 leading-relaxed max-w-3xl">
-                🚀 <strong>Prototyping Notice:</strong> Product additions and status changes are dynamically saved in <code>localStorage</code>. Any updates made here will instantly propagate to the shop catalogs and checkout page in real-time.
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-sm text-emerald-800 leading-relaxed max-w-3xl">
+                🚀 <strong>Database Connected:</strong> Product additions and status changes are dynamically saved in your <code>MongoDB Database</code>. Any updates made here will instantly propagate to the shop catalogs and checkout page in real-time.
               </div>
             </div>
           )}
@@ -775,7 +1262,7 @@ export default function AdminPage() {
                         {orders.map((o) => (
                           <tr key={o.id} className="hover:bg-slate-50/55 transition-colors">
                             <td className="py-4 px-6 font-bold text-slate-800">
-                              {o.id}
+                              {o.orderId}
                             </td>
                             <td className="py-4 px-6">
                               <span className="font-bold text-slate-800 block">{o.customerName}</span>
@@ -1170,9 +1657,9 @@ export default function AdminPage() {
             <div className="space-y-8">
               
               {/* Lucky Winner Banner Settings */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-                <h4 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 flex items-center gap-2">
-                  <Megaphone className="h-5 w-5 text-indigo-600" /> &quot;Lucky Winner&quot; Weekly Banner
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-xs space-y-4">
+                <h4 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 flex items-center gap-2 font-serif text-indigo-905">
+                  <Megaphone className="h-5 w-5 text-indigo-600" /> &quot;Lucky Winner&quot; Weekly Announcement
                 </h4>
                 <form 
                   onSubmit={(e) => {
@@ -1182,21 +1669,21 @@ export default function AdminPage() {
                     setLuckyWinner(val);
                     alert("Lucky Winner Campaign settings saved.");
                   }}
-                  className="flex gap-4 items-end"
+                  className="flex flex-col sm:flex-row gap-4 items-end"
                 >
-                  <div className="flex-1 text-xs font-semibold text-slate-600">
-                    <label className="block mb-1 text-slate-500 uppercase tracking-wider">Lucky Winner Campaign Message</label>
+                  <div className="flex-1 w-full text-xs font-semibold text-slate-600">
+                    <label className="block mb-1.5 text-slate-500 uppercase tracking-wider text-[10px]">Lucky Winner Campaign Message</label>
                     <input 
                       type="text" 
                       name="winner" 
                       defaultValue={luckyWinner}
-                      placeholder="e.g. Pooja Sharma — Lucky Winner of the Week!"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
+                      placeholder="Pooja Sharma — Lucky Winner of the Week!"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl transition cursor-pointer text-sm"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-8 rounded-xl transition cursor-pointer text-sm shadow-md shadow-indigo-50"
                   >
                     Save Campaign
                   </button>
@@ -1204,84 +1691,146 @@ export default function AdminPage() {
               </div>
 
               {/* Banners List */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
-                <h4 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3">Website Banners & Carousel Slides</h4>
+              <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-xs space-y-6">
+                <div>
+                  <h4 className="font-bold text-slate-800 text-sm font-serif">Website Banners & Carousel Slides</h4>
+                  <p className="text-slate-400 text-xs mt-0.5">Control live marketing content and hero banners</p>
+                </div>
                 
                 <div className="space-y-6">
                   {getBanners().map((banner) => (
-                    <div key={banner.id} className="border border-slate-150 rounded-2xl p-5 space-y-4 bg-slate-50/50">
-                      <div className="flex items-center justify-between border-b border-slate-150 pb-2">
-                        <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded">
-                          {banner.type} Banner ({banner.id})
-                        </span>
+                    <div key={banner.id} className="border border-slate-200/60 rounded-3xl p-6 bg-slate-50/50 hover:border-slate-300 transition-all duration-200">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-400 font-semibold">Active:</span>
+                          <span className="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100/50">
+                            {banner.type.replace("_", " ")} Banner
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">ID: {banner.id}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500 font-bold">Active Status:</span>
                           <input 
                             type="checkbox"
                             checked={banner.active}
                             onChange={(e) => updateBanner(banner.id, { active: e.target.checked })}
-                            className="accent-indigo-600 h-4 w-4"
+                            className="accent-indigo-600 h-5 w-5 cursor-pointer rounded"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
-                        <div>
-                          <label className="block mb-1 text-slate-500 uppercase tracking-wider">Banner Name / Title</label>
-                          <input 
-                            type="text" 
-                            defaultValue={banner.name}
-                            onChange={(e) => updateBanner(banner.id, { name: e.target.value })}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium"
-                          />
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        {/* Column 1: Image Preview & Uploads */}
+                        <div className="lg:col-span-1 space-y-3">
+                          {banner.image !== undefined && (
+                            <>
+                              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Banner Graphic</div>
+                              {banner.image ? (
+                               <DragRepositionImage 
+                                  src={banner.image}
+                                  position={banner.imagePosition || "50% 50%"}
+                                  onSave={(newPos) => updateBanner(banner.id, { imagePosition: newPos })}
+                                />
+                              ) : (
+                                <div className="w-full h-36 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                                  <Image className="h-8 w-8 mb-1" />
+                                  <span className="text-[10px]">No Graphic Configured</span>
+                                </div>
+                              )}
+
+                              {/* Local and live toggle */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                <div className="bg-white border border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-2.5 text-center transition cursor-pointer relative group">
+                                  <Upload className="h-4 w-4 text-indigo-500 mx-auto mb-1 group-hover:scale-110 transition" />
+                                  <span className="text-[9px] text-slate-500 block font-semibold">Upload Local File</span>
+                                  <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        await handleBannerImageUpload(banner.id, file);
+                                      }
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                  />
+                                </div>
+                                <div className="flex flex-col justify-center">
+                                  <label className="block text-[9px] text-slate-400 uppercase tracking-wider mb-1">Paste Live URL</label>
+                                  <input 
+                                    type="text" 
+                                    defaultValue={banner.image}
+                                    onChange={(e) => updateBanner(banner.id, { image: e.target.value })}
+                                    placeholder="https://live-url.com/image.jpg"
+                                    className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-100 rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-800 transition outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Image adjustments control */}
+                              <div className="pt-2 border-t border-slate-100 mt-2">
+                                <label className="block text-[9px] text-slate-400 uppercase tracking-wider mb-1">Image Fit Mode</label>
+                                <select
+                                  value={banner.imageFit || "cover"}
+                                  onChange={(e) => updateBanner(banner.id, { imageFit: e.target.value })}
+                                  className="w-full bg-white border border-slate-200 focus:border-indigo-600 rounded-lg p-1 text-[11px] font-semibold text-slate-700 outline-none cursor-pointer"
+                                >
+                                  <option value="cover">Fill Container (Cover)</option>
+                                  <option value="contain">Fit Entire Image (Contain)</option>
+                                </select>
+                              </div>
+                            </>
+                          )}
                         </div>
 
-                        {banner.image !== undefined && (
+                        {/* Column 2 & 3: Configuration Inputs */}
+                        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
                           <div>
-                            <label className="block mb-1 text-slate-500 uppercase tracking-wider">Image URL</label>
+                            <label className="block mb-1.5 text-slate-500 uppercase tracking-wider text-[10px]">Banner Name / Title</label>
                             <input 
                               type="text" 
-                              defaultValue={banner.image}
-                              onChange={(e) => updateBanner(banner.id, { image: e.target.value })}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium"
+                              defaultValue={banner.name}
+                              onChange={(e) => updateBanner(banner.id, { name: e.target.value })}
+                              className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                             />
                           </div>
-                        )}
 
-                        <div>
-                          <label className="block mb-1 text-slate-500 uppercase tracking-wider">Link URL</label>
-                          <input 
-                            type="text" 
-                            defaultValue={banner.linkUrl}
-                            onChange={(e) => updateBanner(banner.id, { linkUrl: e.target.value })}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium"
-                          />
+                          <div>
+                            <label className="block mb-1.5 text-slate-500 uppercase tracking-wider text-[10px]">Link URL Destination</label>
+                            <input 
+                              type="text" 
+                              defaultValue={banner.linkUrl}
+                              onChange={(e) => updateBanner(banner.id, { linkUrl: e.target.value })}
+                              className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                            />
+                          </div>
+
+                          {banner.text !== undefined && (
+                            <div className="md:col-span-2">
+                              <label className="block mb-1.5 text-slate-500 uppercase tracking-wider text-[10px]">Banner Content / Announcement Text</label>
+                              <input 
+                                type="text" 
+                                defaultValue={banner.text}
+                                onChange={(e) => updateBanner(banner.id, { text: e.target.value })}
+                                className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                              />
+                            </div>
+                          )}
+
+                          {banner.type === "live_sale" && (
+                            <div className="md:col-span-2">
+                              <label className="block mb-1.5 text-slate-500 uppercase tracking-wider text-[10px]">Countdown End Time (ISO string)</label>
+                              <input 
+                                type="text" 
+                                defaultValue={banner.endTime || ""}
+                                onChange={(e) => updateBanner(banner.id, { endTime: e.target.value })}
+                                placeholder="e.g. 2026-12-31T23:59:59.000Z"
+                                className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none font-mono"
+                              />
+                            </div>
+                          )}
                         </div>
 
-                        {banner.text !== undefined && (
-                          <div>
-                            <label className="block mb-1 text-slate-500 uppercase tracking-wider">Banner Content / Announcement Text</label>
-                            <input 
-                              type="text" 
-                              defaultValue={banner.text}
-                              onChange={(e) => updateBanner(banner.id, { text: e.target.value })}
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium"
-                            />
-                          </div>
-                        )}
-
-                        {banner.type === "live_sale" && (
-                          <div>
-                            <label className="block mb-1 text-slate-500 uppercase tracking-wider">Countdown End Time (ISO string)</label>
-                            <input 
-                              type="text" 
-                              defaultValue={banner.endTime || ""}
-                              onChange={(e) => updateBanner(banner.id, { endTime: e.target.value })}
-                              placeholder="e.g. 2026-12-31T23:59:59.000Z"
-                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium"
-                            />
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -1289,490 +1838,679 @@ export default function AdminPage() {
               </div>
             </div>
           )}
-
         </div>
       </main>
 
       {/* ================= MODAL: ADD PRODUCT ================= */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-4 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-800">Add New Product</h3>
+        <div className="fixed inset-y-0 right-0 left-0 sm:left-64 z-50 flex items-center justify-center bg-[#1a1a2e]/45 backdrop-blur-xs p-4 sm:p-6 lg:p-8">
+          <div 
+            className="bg-[#f8f9fc] rounded-[16px] max-w-[860px] w-full max-h-[90vh] shadow-2xl border border-[#e2e8f0] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {/* Premium Dark Header */}
+            <div className="bg-[#1e1b4b] text-white p-6 border-l-4 border-[#6366f1] flex items-center justify-between flex-shrink-0 relative shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/10 text-white p-2 rounded-[8px] border border-white/15">
+                  <Plus className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-[18px] font-semibold tracking-tight text-white leading-none">Add New Product</h3>
+                  <p className="text-slate-400 text-xs mt-1 font-medium">Define specifications and inventory values</p>
+                </div>
+              </div>
               <button 
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600"
+                className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition cursor-pointer flex items-center justify-center"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleAddSubmit} className="space-y-4 text-xs font-semibold text-slate-600">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Product Name</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    required
-                    value={productForm.name} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. Muslin Button Jabla Pack of 2"
-                  />
+            <form onSubmit={handleAddSubmit} className="flex-1 flex flex-col overflow-hidden">
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+                
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Left Column: Basic Info + Pricing */}
+                  <div className="space-y-6">
+                    {/* Basic Info Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Product Name</label>
+                          <input 
+                            type="text" 
+                            name="name" 
+                            required
+                            value={productForm.name} 
+                            onChange={handleFormChange}
+                            placeholder="e.g. Muslin Button Jabla Pack of 2"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">SKU</label>
+                            <input 
+                              type="text" 
+                              name="sku" 
+                              required
+                              value={productForm.sku} 
+                              onChange={handleFormChange}
+                              placeholder="e.g. MS-JAB-02"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Category</label>
+                            <select 
+                              name="category" 
+                              value={productForm.category}
+                              onChange={handleFormChange}
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                            >
+                              {categoriesList.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Age Group</label>
+                            <select 
+                              name="ageGroup" 
+                              value={productForm.ageGroup}
+                              onChange={handleFormChange}
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                            >
+                              <option value="0-3 Months">0-3 Months</option>
+                              <option value="3-6 Months">3-6 Months</option>
+                              <option value="6-12 Months">6-12 Months</option>
+                              <option value="1-2 Years">1-2 Years</option>
+                              <option value="2-3 Years">2-3 Years</option>
+                              <option value="3-4 Years">3-4 Years</option>
+                              <option value="4-5 Years">4-5 Years</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Stock Qty</label>
+                            <input 
+                              type="number" 
+                              name="stockQuantity" 
+                              required
+                              value={productForm.stockQuantity} 
+                              onChange={handleFormChange}
+                              placeholder="e.g. 10"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pricing Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Original (₹)</label>
+                          <input 
+                            type="number" 
+                            name="originalPrice" 
+                            value={productForm.originalPrice} 
+                            onChange={handleFormChange}
+                            placeholder="0"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Sale (₹)</label>
+                          <input 
+                            type="number" 
+                            name="price" 
+                            required
+                            value={productForm.price} 
+                            onChange={handleFormChange}
+                            placeholder="0"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Offer (₹)</label>
+                          <input 
+                            type="number" 
+                            name="offerPrice" 
+                            value={productForm.offerPrice} 
+                            onChange={handleFormChange}
+                            placeholder="Optional"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Specifications + Media */}
+                  <div className="space-y-6">
+                    {/* Specifications Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Brand</label>
+                          <input 
+                            type="text" 
+                            name="brand" 
+                            value={productForm.brand} 
+                            onChange={handleFormChange}
+                            placeholder="Akshvik"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Fabric / Material</label>
+                          <input 
+                            type="text" 
+                            name="fabric" 
+                            value={productForm.fabric} 
+                            onChange={handleFormChange}
+                            placeholder="100% Organic Cotton"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Video Link URL (Optional)</label>
+                          <input 
+                            type="text" 
+                            name="videoUrl" 
+                            value={productForm.videoUrl} 
+                            onChange={handleFormChange}
+                            placeholder="e.g. YouTube / drive link"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Media Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
+                      <div className="space-y-4">
+                        <PrimaryImageUploader
+                          value={productForm.image}
+                          onChange={(val) => setProductForm(prev => ({ ...prev, image: val }))}
+                          onUpload={uploadImageFile}
+                        />
+                        <GalleryImageUploader
+                          value={productForm.images}
+                          onChange={(val) => setProductForm(prev => ({ ...prev, images: val }))}
+                          onUpload={uploadImageFile}
+                        />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Sizes</label>
+                            <input 
+                              type="text" 
+                              name="sizes" 
+                              value={productForm.sizes} 
+                              onChange={handleFormChange}
+                              placeholder="0-3M, 3-6M"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Colors</label>
+                            <input 
+                              type="text" 
+                              name="colors" 
+                              value={productForm.colors} 
+                              onChange={handleFormChange}
+                              placeholder="Red, Blue"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">SKU</label>
-                  <input 
-                    type="text" 
-                    name="sku" 
-                    required
-                    value={productForm.sku} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. MS-JAB-02"
-                  />
+
+                {/* Description Card */}
+                <div 
+                  className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                  style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                >
+                  <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
+                  <div>
+                    <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Full details & features</label>
+                    <textarea 
+                      name="description" 
+                      rows={3}
+                      required
+                      value={productForm.description} 
+                      onChange={handleFormChange}
+                      placeholder="Tell us about the fabric feel, structure, and design..."
+                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
+                    />
+                  </div>
                 </div>
+
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Category</label>
-                  <select 
-                    name="category" 
-                    value={productForm.category}
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
+              {/* Sticky Footer */}
+              <div className="bg-white border-t border-[#e2e8f0] p-6 flex-shrink-0 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      name="isLiveSale" 
+                      id="add-isLiveSale"
+                      checked={productForm.isLiveSale} 
+                      onChange={handleFormChange}
+                      className="accent-[#6366f1] h-5 w-5 cursor-pointer rounded border-slate-300"
+                    />
+                    <label htmlFor="add-isLiveSale" className="text-[#1e1b4b] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
                   >
-                    {categoriesList.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    Cancel
+                  </button>
                 </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Age Group</label>
-                  <select 
-                    name="ageGroup" 
-                    value={productForm.ageGroup}
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  >
-                    <option value="0-3 Months">0-3 Months</option>
-                    <option value="3-6 Months">3-6 Months</option>
-                    <option value="6-12 Months">6-12 Months</option>
-                    <option value="1-2 Years">1-2 Years</option>
-                    <option value="2-3 Years">2-3 Years</option>
-                    <option value="3-4 Years">3-4 Years</option>
-                    <option value="4-5 Years">4-5 Years</option>
-                  </select>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full h-[52px] bg-[#6366f1] hover:bg-[#5053e6] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-indigo-100/30 flex items-center justify-center gap-2"
+                >
+                  <Check className="h-5 w-5" /> Save Product
+                </button>
               </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Original Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="originalPrice" 
-                    value={productForm.originalPrice} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. 399"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Discounted Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="price" 
-                    required
-                    value={productForm.price} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. 299"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Offer Price (₹ - Optional)</label>
-                  <input 
-                    type="number" 
-                    name="offerPrice" 
-                    value={productForm.offerPrice} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. 249"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Brand</label>
-                  <input 
-                    type="text" 
-                    name="brand" 
-                    value={productForm.brand} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. Akshvik"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Fabric / Material</label>
-                  <input 
-                    type="text" 
-                    name="fabric" 
-                    value={productForm.fabric} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. 100% Muslin Cotton"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Stock Quantity</label>
-                  <input 
-                    type="number" 
-                    name="stockQuantity" 
-                    required
-                    value={productForm.stockQuantity} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. 15"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Video Link URL (Optional)</label>
-                  <input 
-                    type="text" 
-                    name="videoUrl" 
-                    value={productForm.videoUrl} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="e.g. YouTube / drive link"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Primary Image URL</label>
-                  <input 
-                    type="text" 
-                    name="image" 
-                    required
-                    value={productForm.image} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="Main Unsplash / media image URL"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Gallery Image URLs (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="images" 
-                    value={productForm.images} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="url1, url2, url3"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Sizes (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="sizes" 
-                    value={productForm.sizes} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="0-3 Months, 3-6 Months"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Colors (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="colors" 
-                    value={productForm.colors} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm" 
-                    placeholder="Cream, Olive"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 py-1">
-                <input 
-                  type="checkbox" 
-                  name="isLiveSale" 
-                  id="add-isLiveSale"
-                  checked={productForm.isLiveSale} 
-                  onChange={handleFormChange}
-                  className="accent-indigo-600 h-4 w-4"
-                />
-                <label htmlFor="add-isLiveSale" className="text-slate-700 font-semibold cursor-pointer">Tag as &quot;Live Sale&quot; Product</label>
-              </div>
-
-              <div>
-                <label className="block mb-1 text-slate-500 uppercase tracking-wider">Description</label>
-                <textarea 
-                  name="description" 
-                  rows={3}
-                  required
-                  value={productForm.description} 
-                  onChange={handleFormChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm resize-none" 
-                  placeholder="Tell us about the fabric feel and structure..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer"
-              >
-                Add Product
-              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* ================= MODAL: EDIT PRODUCT ================= */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-4 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-800">Edit Product Details</h3>
+
+{isEditModalOpen && (
+        <div className="fixed inset-y-0 right-0 left-0 sm:left-64 z-50 flex items-center justify-center bg-[#1a1a2e]/45 backdrop-blur-xs p-4 sm:p-6 lg:p-8">
+          <div 
+            className="bg-[#f8f9fc] rounded-[16px] max-w-[860px] w-full max-h-[90vh] shadow-2xl border border-[#e2e8f0] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {/* Premium Dark Header */}
+            <div className="bg-[#1e1b4b] text-white p-6 border-l-4 border-[#6366f1] flex items-center justify-between flex-shrink-0 relative shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/10 text-white p-2 rounded-[8px] border border-white/15">
+                  <Edit className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-[18px] font-semibold tracking-tight text-white leading-none">Edit Product Details</h3>
+                  <p className="text-slate-400 text-xs mt-1 font-medium">Modify SKU: {editingProduct?.sku} / ID: {editingProduct?.id}</p>
+                </div>
+              </div>
               <button 
                 onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
-                className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600"
+                className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition cursor-pointer flex items-center justify-center"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleEditSubmit} className="space-y-4 text-xs font-semibold text-slate-600">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Product Name</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    required
-                    value={productForm.name} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
+            <form onSubmit={handleEditSubmit} className="flex-1 flex flex-col overflow-hidden">
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+                
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Left Column: Basic Info + Pricing */}
+                  <div className="space-y-6">
+                    {/* Basic Info Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Product Name</label>
+                          <input 
+                            type="text" 
+                            name="name" 
+                            required
+                            value={productForm.name} 
+                            onChange={handleFormChange}
+                            placeholder="e.g. Muslin Button Jabla"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">SKU</label>
+                            <input 
+                              type="text" 
+                              name="sku" 
+                              required
+                              value={productForm.sku} 
+                              onChange={handleFormChange}
+                              placeholder="e.g. MS-JAB-02"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Category</label>
+                            <select 
+                              name="category" 
+                              value={productForm.category}
+                              onChange={handleFormChange}
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                            >
+                              {categoriesList.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Age Group</label>
+                            <select 
+                              name="ageGroup" 
+                              value={productForm.ageGroup}
+                              onChange={handleFormChange}
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                            >
+                              <option value="0-3 Months">0-3 Months</option>
+                              <option value="3-6 Months">3-6 Months</option>
+                              <option value="6-12 Months">6-12 Months</option>
+                              <option value="1-2 Years">1-2 Years</option>
+                              <option value="2-3 Years">2-3 Years</option>
+                              <option value="3-4 Years">3-4 Years</option>
+                              <option value="4-5 Years">4-5 Years</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Stock Qty</label>
+                            <input 
+                              type="number" 
+                              name="stockQuantity" 
+                              required
+                              value={productForm.stockQuantity} 
+                              onChange={handleFormChange}
+                              placeholder="e.g. 10"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pricing Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Original (₹)</label>
+                          <input 
+                            type="number" 
+                            name="originalPrice" 
+                            value={productForm.originalPrice} 
+                            onChange={handleFormChange}
+                            placeholder="0"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Sale (₹)</label>
+                          <input 
+                            type="number" 
+                            name="price" 
+                            required
+                            value={productForm.price} 
+                            onChange={handleFormChange}
+                            placeholder="0"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Offer (₹)</label>
+                          <input 
+                            type="number" 
+                            name="offerPrice" 
+                            value={productForm.offerPrice} 
+                            onChange={handleFormChange}
+                            placeholder="Optional"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Specifications + Media */}
+                  <div className="space-y-6">
+                    {/* Specifications Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Brand</label>
+                          <input 
+                            type="text" 
+                            name="brand" 
+                            value={productForm.brand} 
+                            onChange={handleFormChange}
+                            placeholder="Akshvik"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Fabric / Material</label>
+                          <input 
+                            type="text" 
+                            name="fabric" 
+                            value={productForm.fabric} 
+                            onChange={handleFormChange}
+                            placeholder="100% Organic Cotton"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Video Link URL (Optional)</label>
+                          <input 
+                            type="text" 
+                            name="videoUrl" 
+                            value={productForm.videoUrl} 
+                            onChange={handleFormChange}
+                            placeholder="e.g. YouTube / drive link"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Media Card */}
+                    <div 
+                      className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                    >
+                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
+                      <div className="space-y-4">
+                        <PrimaryImageUploader
+                          value={productForm.image}
+                          onChange={(val) => setProductForm(prev => ({ ...prev, image: val }))}
+                          onUpload={uploadImageFile}
+                        />
+                        <GalleryImageUploader
+                          value={productForm.images}
+                          onChange={(val) => setProductForm(prev => ({ ...prev, images: val }))}
+                          onUpload={uploadImageFile}
+                        />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Sizes</label>
+                            <input 
+                              type="text" 
+                              name="sizes" 
+                              value={productForm.sizes} 
+                              onChange={handleFormChange}
+                              placeholder="0-3M, 3-6M"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Colors</label>
+                            <input 
+                              type="text" 
+                              name="colors" 
+                              value={productForm.colors} 
+                              onChange={handleFormChange}
+                              placeholder="Red, Blue"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">SKU</label>
-                  <input 
-                    type="text" 
-                    name="sku" 
-                    required
-                    value={productForm.sku} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
+
+                {/* Description Card */}
+                <div 
+                  className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
+                  style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+                >
+                  <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
+                  <div>
+                    <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Full details & features</label>
+                    <textarea 
+                      name="description" 
+                      rows={3}
+                      required
+                      value={productForm.description} 
+                      onChange={handleFormChange}
+                      placeholder="Tell us about the fabric feel, structure, and design..."
+                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
+                    />
+                  </div>
                 </div>
+
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Category</label>
-                  <select 
-                    name="category" 
-                    value={productForm.category}
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
+              {/* Sticky Footer */}
+              <div className="bg-white border-t border-[#e2e8f0] p-6 flex-shrink-0 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      name="isLiveSale" 
+                      id="edit-isLiveSale"
+                      checked={productForm.isLiveSale} 
+                      onChange={handleFormChange}
+                      className="accent-[#6366f1] h-5 w-5 cursor-pointer rounded border-slate-300"
+                    />
+                    <label htmlFor="edit-isLiveSale" className="text-[#1e1b4b] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
+                    className="text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
                   >
-                    {categoriesList.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    Cancel
+                  </button>
                 </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Age Group</label>
-                  <select 
-                    name="ageGroup" 
-                    value={productForm.ageGroup}
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  >
-                    <option value="0-3 Months">0-3 Months</option>
-                    <option value="3-6 Months">3-6 Months</option>
-                    <option value="6-12 Months">6-12 Months</option>
-                    <option value="1-2 Years">1-2 Years</option>
-                    <option value="2-3 Years">2-3 Years</option>
-                    <option value="3-4 Years">3-4 Years</option>
-                    <option value="4-5 Years">4-5 Years</option>
-                  </select>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full h-[52px] bg-[#6366f1] hover:bg-[#5053e6] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-indigo-100/30 flex items-center justify-center gap-2"
+                >
+                  <Check className="h-5 w-5" /> Save Changes
+                </button>
               </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Original Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="originalPrice" 
-                    value={productForm.originalPrice} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="price" 
-                    required
-                    value={productForm.price} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Offer Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="offerPrice" 
-                    value={productForm.offerPrice} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Brand</label>
-                  <input 
-                    type="text" 
-                    name="brand" 
-                    value={productForm.brand} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Fabric / Material</label>
-                  <input 
-                    type="text" 
-                    name="fabric" 
-                    value={productForm.fabric} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Stock Quantity</label>
-                  <input 
-                    type="number" 
-                    name="stockQuantity" 
-                    required
-                    value={productForm.stockQuantity} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Video Link URL (Optional)</label>
-                  <input 
-                    type="text" 
-                    name="videoUrl" 
-                    value={productForm.videoUrl} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Primary Image URL</label>
-                  <input 
-                    type="text" 
-                    name="image" 
-                    required
-                    value={productForm.image} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Gallery Image URLs (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="images" 
-                    value={productForm.images} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Sizes (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="sizes" 
-                    value={productForm.sizes} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-slate-500 uppercase tracking-wider">Colors (Comma separated)</label>
-                  <input 
-                    type="text" 
-                    name="colors" 
-                    value={productForm.colors} 
-                    onChange={handleFormChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 py-1">
-                <input 
-                  type="checkbox" 
-                  name="isLiveSale" 
-                  id="edit-isLiveSale"
-                  checked={productForm.isLiveSale} 
-                  onChange={handleFormChange}
-                  className="accent-indigo-600 h-4 w-4"
-                />
-                <label htmlFor="edit-isLiveSale" className="text-slate-700 font-semibold cursor-pointer">Tag as &quot;Live Sale&quot; Product</label>
-              </div>
-
+            </form>
+          </div>
+        </div>
+      )}
+      
+      {/* ================= CHANGE PASSWORD MODAL ================= */}
+      {isChangePasswordOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-100 relative">
+            <button
+              onClick={() => {
+                setIsChangePasswordOpen(false);
+                setChangePasswordError("");
+                setChangePasswordSuccess("");
+              }}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-xl font-bold text-slate-800 font-serif mb-6 flex items-center gap-2">
+              <Key className="text-indigo-600 h-5 w-5" /> Change Password
+            </h3>
+            <form onSubmit={handleChangePassword} className="space-y-4">
               <div>
-                <label className="block mb-1 text-slate-500 uppercase tracking-wider">Description</label>
-                <textarea 
-                  name="description" 
-                  rows={3}
+                <label className="block text-slate-500 uppercase tracking-wider text-xs mb-2">Current Password</label>
+                <input
+                  type="password"
                   required
-                  value={productForm.description} 
-                  onChange={handleFormChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm resize-none"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
+                  placeholder="Enter current password"
                 />
               </div>
+              <div>
+                <label className="block text-slate-500 uppercase tracking-wider text-xs mb-2">New Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              {changePasswordError && (
+                <div className="text-rose-600 text-sm font-medium bg-rose-50 p-3 rounded-xl border border-rose-100">
+                  {changePasswordError}
+                </div>
+              )}
+
+              {changePasswordSuccess && (
+                <div className="text-emerald-600 text-sm font-medium bg-emerald-50 p-3 rounded-xl border border-emerald-100 font-semibold">
+                  {changePasswordSuccess}
+                </div>
+              )}
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer mt-2"
               >
-                Save Changes
+                Update Password
               </button>
             </form>
           </div>

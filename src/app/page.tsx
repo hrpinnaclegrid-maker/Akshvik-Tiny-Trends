@@ -154,7 +154,8 @@ export default function Home() {
                 className="absolute inset-0 bg-cover"
                 style={{ 
                   backgroundImage: `url('${slide.image}')`,
-                  backgroundPosition: slide.id === "b3" ? "50% 20%" : "50% 8%"
+                  backgroundPosition: slide.imagePosition || (slide.id === "b3" ? "50% 20%" : "50% 8%"),
+                  backgroundSize: slide.imageFit || "cover"
                 }}
               >
                 <div className="absolute inset-0 bg-black/10" />

@@ -130,7 +130,7 @@ export default function CheckoutPage() {
               </div>
               <div className="bg-brand-cream border border-brand-sage rounded-2xl p-5 text-left space-y-3 text-sm">
                 {([
-                  ["Order ID", placedOrderDetails.id],
+                  ["Order ID", placedOrderDetails.orderId],
                   ["Payment", placedOrderDetails.paymentMethod === "COD" ? "COD (Rs.250 Advance Paid)" : "Online (Full Paid)"],
                   ["Delivery To", `${placedOrderDetails.address}, ${placedOrderDetails.city} - ${placedOrderDetails.pincode}`],
                 ] as [string, string][]).map(([k, v]) => (

@@ -38,6 +38,7 @@ export interface CartItem {
 
 export interface Order {
   id: string;
+  orderId: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -81,6 +82,8 @@ export interface Banner {
   linkUrl?: string;
   active: boolean;
   endTime?: string; // For countdown timers
+  imagePosition?: string;
+  imageFit?: string;
 }
 
 interface AppContextType {
@@ -111,7 +114,7 @@ interface AppContextType {
   // Order Operations
   getOrders: () => Order[];
   placeOrder: (
-    orderDetails: Omit<Order, "id" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
+    orderDetails: Omit<Order, "id" | "orderId" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
   ) => Promise<Order>;
   updateOrderStatus: (id: string, status: Order["orderStatus"]) => Promise<Order>;
   updatePaymentStatus: (id: string, status: Order["paymentStatus"]) => Promise<Order>;
@@ -375,6 +378,7 @@ const INITIAL_PRODUCTS: Product[] = [
 const INITIAL_ORDERS: Order[] = [
   {
     id: "ORD-9874",
+    orderId: "ORD-9874",
     customerName: "Aditi Sharma",
     customerEmail: "aditi@gmail.com",
     customerPhone: "9876543210",
@@ -403,6 +407,7 @@ const INITIAL_ORDERS: Order[] = [
   },
   {
     id: "ORD-1245",
+    orderId: "ORD-1245",
     customerName: "Rohan Varma",
     customerEmail: "rohanv@yahoo.com",
     customerPhone: "9123456789",
@@ -442,156 +447,65 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [banners, setBanners] = useState<Banner[]>([]);
   const [luckyWinner, setLuckyWinner] = useState<string>("Aarav");
 
-  // Initialize data from localStorage or initial mock data
+  // Initialize data from backend APIs and localStorage
   useEffect(() => {
+    // 1. Fetch products from API
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data.map((p: any) => ({ ...p, inStock: p.stockQuantity > 0 })));
+        }
+      })
+      .catch((err) => console.error("Failed to fetch products:", err));
+
+    // 2. Fetch orders from API
+    fetch("/api/orders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setOrders(data);
+      })
+      .catch((err) => console.error("Failed to fetch orders:", err));
+
+    // 3. Fetch coupons from API
+    fetch("/api/coupons")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCoupons(data);
+      })
+      .catch((err) => console.error("Failed to fetch coupons:", err));
+
+    // 4. Fetch banners from API
+    fetch("/api/banners")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setBanners(data);
+      })
+      .catch((err) => console.error("Failed to fetch banners:", err));
+
+    // 5. Fetch lucky winner from API
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.lucky_winner) setLuckyWinner(data.lucky_winner);
+      })
+      .catch((err) => console.error("Failed to fetch lucky winner:", err));
+
+    // 6. Initialize local states (Cart/Wishlist) from localStorage
     if (typeof window !== "undefined") {
       try {
-        // ── Version check: if data was saved with an older version, wipe and reset ──
-        const storedVersion = localStorage.getItem("akshvik_data_version");
-        if (storedVersion !== DATA_VERSION) {
-          // Clear all product/banner/order data so INITIAL_PRODUCTS load fresh
-          localStorage.removeItem("akshvik_products");
-          localStorage.removeItem("akshvik_banners");
-          localStorage.setItem("akshvik_data_version", DATA_VERSION);
-        }
-
-        const storedProducts = localStorage.getItem("akshvik_products");
-        if (storedProducts) {
-          // Derive correct inStock value for safety and pull latest image paths
-          const parsed = JSON.parse(storedProducts).map((p: any) => {
-            const initialProduct = INITIAL_PRODUCTS.find(ip => ip.id === p.id);
-            return {
-              ...p,
-              inStock: p.stockQuantity > 0,
-              image: initialProduct ? initialProduct.image : p.image,
-              images: initialProduct ? initialProduct.images : p.images
-            };
-          });
-          setProducts(parsed);
-          localStorage.setItem("akshvik_products", JSON.stringify(parsed));
-        } else {
-          const initial = INITIAL_PRODUCTS.map(p => ({
-            ...p,
-            inStock: p.stockQuantity > 0
-          }));
-          setProducts(initial);
-          localStorage.setItem("akshvik_products", JSON.stringify(initial));
-        }
-
         const storedCart = localStorage.getItem("akshvik_cart");
         if (storedCart) setCart(JSON.parse(storedCart));
 
         const storedWishlist = localStorage.getItem("akshvik_wishlist");
         if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
-
-        const storedOrders = localStorage.getItem("akshvik_orders");
-        if (storedOrders) {
-          setOrders(JSON.parse(storedOrders));
-        } else {
-          setOrders(INITIAL_ORDERS);
-          localStorage.setItem("akshvik_orders", JSON.stringify(INITIAL_ORDERS));
-        }
-
-        // Coupons Setup
-        const storedCoupons = localStorage.getItem("akshvik_coupons");
-        if (storedCoupons) {
-          setCoupons(JSON.parse(storedCoupons));
-        } else {
-          const initialCoupons: Coupon[] = [
-            { code: "FIRSTBUY", type: "percentage", value: 10, active: true },
-            { code: "FLAT50", type: "flat", value: 50, active: true },
-            { code: "FREEGIFT", type: "free_gift", value: 0, active: true }
-          ];
-          setCoupons(initialCoupons);
-          localStorage.setItem("akshvik_coupons", JSON.stringify(initialCoupons));
-        }
-
-        // Banners Setup
-        const storedBanners = localStorage.getItem("akshvik_banners");
-        if (storedBanners) {
-          setBanners(JSON.parse(storedBanners));
-        } else {
-          const initialBanners: Banner[] = [
-            {
-              id: "b1",
-              name: "Muslin Softness Swaddle Slides",
-              type: "hero",
-              image: "/WebsiteImages/YellowfrockRetro.webp",
-              text: "Breathable, lightweight, and organic swaddles.",
-              linkUrl: "/shop?category=Muslin%20Collection",
-              active: true
-            },
-            {
-              id: "b2",
-              name: "Premium Cotton Summer Outfits",
-              type: "hero",
-              image: "/WebsiteImages/shirt & pant.webp",
-              text: "Comfy rompers & sets for active play.",
-              linkUrl: "/shop?category=Premium%20Cotton",
-              active: true
-            },
-            {
-              id: "b3",
-              name: "Wooden Play & Learning Toys",
-              type: "hero",
-              image: "/WebsiteImages/Babywear.webp",
-              text: "Eco-friendly, safe & non-toxic toys.",
-              linkUrl: "/shop?category=Wooden%20Toys",
-              active: true
-            },
-            {
-              id: "b-live",
-              name: "Mega Live Sale!",
-              type: "live_sale",
-              image: "/WebsiteImages/Babywear.webp",
-              text: "Mega Live Sale is Live! Grab at 50% Off.",
-              linkUrl: "/shop",
-              active: true,
-              endTime: new Date(Date.now() + 86400000 * 2).toISOString() // 2 days from now
-            },
-            {
-              id: "b-announcement",
-              name: "Top Bar Notification",
-              type: "announcement",
-              text: "🎉 Use code FIRSTBUY for 10% OFF on all organic muslin & cotton collection! Free shipping above ₹999.",
-              linkUrl: "/shop",
-              active: true
-            }
-          ];
-          setBanners(initialBanners);
-          localStorage.setItem("akshvik_banners", JSON.stringify(initialBanners));
-        }
-
-        // Lucky Winner Setup
-        const storedWinner = localStorage.getItem("akshvik_lucky_winner");
-        if (storedWinner) setLuckyWinner(storedWinner);
       } catch (err) {
-        console.error("Local storage corruption detected, resetting to defaults", err);
-        // Clear cached keys
-        localStorage.removeItem("akshvik_products");
-        localStorage.removeItem("akshvik_cart");
-        localStorage.removeItem("akshvik_wishlist");
-        localStorage.removeItem("akshvik_orders");
-        localStorage.removeItem("akshvik_coupons");
-        localStorage.removeItem("akshvik_banners");
-        localStorage.removeItem("akshvik_lucky_winner");
-
-        // Force reload to let it initialize cleanly
-        window.location.reload();
+        console.error("Local storage error:", err);
       }
     }
   }, []);
 
-  // Sync mutations to localStorage
-  const syncProducts = (newProducts: Product[]) => {
-    const updated = newProducts.map(p => ({
-      ...p,
-      inStock: p.stockQuantity > 0
-    }));
-    setProducts(updated);
-    localStorage.setItem("akshvik_products", JSON.stringify(updated));
-  };
-
+  // Sync mutations to local state & localStorage (for Cart/Wishlist only)
   const syncCart = (newCart: CartItem[]) => {
     setCart(newCart);
     localStorage.setItem("akshvik_cart", JSON.stringify(newCart));
@@ -602,23 +516,8 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem("akshvik_wishlist", JSON.stringify(newWishlist));
   };
 
-  const syncOrders = (newOrders: Order[]) => {
-    setOrders(newOrders);
-    localStorage.setItem("akshvik_orders", JSON.stringify(newOrders));
-  };
-
-  const syncCoupons = (newCoupons: Coupon[]) => {
-    setCoupons(newCoupons);
-    localStorage.setItem("akshvik_coupons", JSON.stringify(newCoupons));
-  };
-
-  const syncBanners = (newBanners: Banner[]) => {
-    setBanners(newBanners);
-    localStorage.setItem("akshvik_banners", JSON.stringify(newBanners));
-  };
-
   // ----------------------------------------------------
-  // Product Operations (Abstracted for future API calls)
+  // Product Operations
   // ----------------------------------------------------
   const getProducts = () => {
     return products.map(p => ({
@@ -636,42 +535,35 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const addProduct = async (productData: Omit<Product, "id">): Promise<Product> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const newProduct: Product = {
-      ...productData,
-      id: `p-${Date.now()}`,
-      inStock: productData.stockQuantity > 0
-    };
-    const updated = [newProduct, ...products];
-    syncProducts(updated);
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(productData),
+    });
+    if (!res.ok) throw new Error("Failed to add product");
+    const newProduct: Product = await res.json();
+    setProducts((prev) => [newProduct, ...prev]);
     return newProduct;
   };
 
   const updateProduct = async (id: string, updatedData: Partial<Product>): Promise<Product> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let updatedProduct: Product | null = null;
-    const updatedList = products.map((p) => {
-      if (p.id === id) {
-        const merged = { ...p, ...updatedData };
-        updatedProduct = {
-          ...merged,
-          inStock: merged.stockQuantity > 0
-        };
-        return updatedProduct;
-      }
-      return p;
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
     });
-    if (!updatedProduct) throw new Error("Product not found");
-    syncProducts(updatedList);
+    if (!res.ok) throw new Error("Failed to update product");
+    const updatedProduct: Product = await res.json();
+    setProducts((prev) => prev.map((p) => (p.id === id ? updatedProduct : p)));
     return updatedProduct;
   };
 
   const deleteProduct = async (id: string): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const exists = products.some((p) => p.id === id);
-    if (!exists) return false;
-    const updated = products.filter((p) => p.id !== id);
-    syncProducts(updated);
+    const res = await fetch(`/api/products/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) return false;
+    setProducts((prev) => prev.filter((p) => p.id !== id));
     return true;
   };
 
@@ -780,90 +672,73 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   // ----------------------------------------------------
-  // Order Operations (Abstracted for future API calls)
+  // Order Operations
   // ----------------------------------------------------
   const getOrders = () => {
     return orders;
   };
 
   const placeOrder = async (
-    orderDetails: Omit<Order, "id" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
+    orderDetails: Omit<Order, "id" | "orderId" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
   ): Promise<Order> => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    // Deduct stock quantity safely
-    const updatedProductsList = products.map(p => {
-      const orderItem = orderDetails.items.find(item => item.productId === p.id);
-      if (orderItem) {
-        return {
-          ...p,
-          stockQuantity: Math.max(0, p.stockQuantity - orderItem.quantity)
-        };
-      }
-      return p;
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderDetails),
     });
-    syncProducts(updatedProductsList);
+    if (!res.ok) throw new Error("Failed to place order");
+    const newOrder: Order = await res.json();
 
-    const newOrder: Order = {
-      ...orderDetails,
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      createdAt: new Date().toISOString(),
-      orderStatus: "Pending",
-      paymentStatus: orderDetails.paymentMethod === "Online" ? "Paid" : "Pending",
-      returnRequested: false
-    };
+    // Fetch products again to update local stock states
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data.map(p => ({ ...p, inStock: p.stockQuantity > 0 })));
+        }
+      })
+      .catch((err) => console.error(err));
 
-    const updated = [newOrder, ...orders];
-    syncOrders(updated);
+    setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     return newOrder;
   };
 
   const updateOrderStatus = async (id: string, status: Order["orderStatus"]): Promise<Order> => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    let updatedOrder: Order | null = null;
-    const updatedList = orders.map((o) => {
-      if (o.id === id) {
-        updatedOrder = { ...o, orderStatus: status };
-        return updatedOrder;
-      }
-      return o;
+    const res = await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderStatus: status }),
     });
-    if (!updatedOrder) throw new Error("Order not found");
-    syncOrders(updatedList);
+    if (!res.ok) throw new Error("Failed to update order status");
+    const updatedOrder: Order = await res.json();
+    setOrders((prev) => prev.map((o) => (o.id === id ? updatedOrder : o)));
     return updatedOrder;
   };
 
   const updatePaymentStatus = async (id: string, status: Order["paymentStatus"]): Promise<Order> => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    let updatedOrder: Order | null = null;
-    const updatedList = orders.map((o) => {
-      if (o.id === id) {
-        updatedOrder = { ...o, paymentStatus: status };
-        return updatedOrder;
-      }
-      return o;
+    const res = await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentStatus: status }),
     });
-    if (!updatedOrder) throw new Error("Order not found");
-    syncOrders(updatedList);
+    if (!res.ok) throw new Error("Failed to update payment status");
+    const updatedOrder: Order = await res.json();
+    setOrders((prev) => prev.map((o) => (o.id === id ? updatedOrder : o)));
     return updatedOrder;
   };
 
   const toggleOrderReturn = async (id: string): Promise<Order> => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    let updatedOrder: Order | null = null;
-    const updatedList = orders.map((o) => {
-      if (o.id === id) {
-        updatedOrder = { ...o, returnRequested: !o.returnRequested };
-        if (updatedOrder.returnRequested) {
-          updatedOrder.orderStatus = "Returned";
-        }
-        return updatedOrder;
-      }
-      return o;
+    const order = orders.find((o) => o.id === id);
+    if (!order) throw new Error("Order not found");
+    const res = await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ returnRequested: !order.returnRequested }),
     });
-    if (!updatedOrder) throw new Error("Order not found");
-    syncOrders(updatedList);
+    if (!res.ok) throw new Error("Failed to toggle order return");
+    const updatedOrder: Order = await res.json();
+    setOrders((prev) => prev.map((o) => (o.id === id ? updatedOrder : o)));
     return updatedOrder;
   };
 
@@ -871,31 +746,62 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Coupons Management
   // ----------------------------------------------------
   const getCoupons = () => coupons;
-  const addCoupon = (coupon: Coupon) => {
-    const updated = [...coupons, coupon];
-    syncCoupons(updated);
+
+  const addCoupon = async (coupon: Coupon) => {
+    const res = await fetch("/api/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(coupon),
+    });
+    if (!res.ok) throw new Error("Failed to add coupon");
+    const newCoupon: Coupon = await res.json();
+    setCoupons((prev) => [...prev, newCoupon]);
   };
-  const updateCoupon = (code: string, updatedData: Partial<Coupon>) => {
-    const updated = coupons.map(c => c.code === code ? { ...c, ...updatedData } : c);
-    syncCoupons(updated);
+
+  const updateCoupon = async (code: string, updatedData: Partial<Coupon>) => {
+    const res = await fetch(`/api/coupons/${code}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+    if (!res.ok) throw new Error("Failed to update coupon");
+    const updatedCoupon: Coupon = await res.json();
+    setCoupons((prev) => prev.map((c) => (c.code === code ? updatedCoupon : c)));
   };
-  const deleteCoupon = (code: string) => {
-    const updated = coupons.filter(c => c.code !== code);
-    syncCoupons(updated);
+
+  const deleteCoupon = async (code: string) => {
+    const res = await fetch(`/api/coupons/${code}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete coupon");
+    setCoupons((prev) => prev.filter((c) => c.code !== code));
   };
 
   // ----------------------------------------------------
   // Banners Management
   // ----------------------------------------------------
   const getBanners = () => banners;
-  const updateBanner = (id: string, updatedData: Partial<Banner>) => {
-    const updated = banners.map(b => b.id === id ? { ...b, ...updatedData } : b);
-    syncBanners(updated);
+
+  const updateBanner = async (id: string, updatedData: Partial<Banner>) => {
+    const res = await fetch(`/api/banners/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+    if (!res.ok) throw new Error("Failed to update banner");
+    const updatedBanner: Banner = await res.json();
+    setBanners((prev) => prev.map((b) => (b.id === id ? updatedBanner : b)));
   };
 
-  const handleSetLuckyWinner = (winner: string) => {
-    setLuckyWinner(winner);
-    localStorage.setItem("akshvik_lucky_winner", winner);
+  const handleSetLuckyWinner = async (winner: string) => {
+    const res = await fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: "lucky_winner", value: winner }),
+    });
+    if (res.ok) {
+      setLuckyWinner(winner);
+    }
   };
 
   return (
