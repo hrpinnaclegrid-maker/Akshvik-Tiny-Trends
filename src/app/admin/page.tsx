@@ -26,7 +26,8 @@ import {
   Key,
   Upload,
   Move,
-  CloudUpload
+  CloudUpload,
+  Menu
 } from "lucide-react";
 
 const DragRepositionImage = ({
@@ -471,6 +472,7 @@ export default function AdminPage() {
 
   // Active View Tab: 'dashboard' | 'products' | 'orders' | 'categories' | 'customers' | 'coupons' | 'banners'
   const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "orders" | "categories" | "customers" | "coupons" | "banners">("dashboard");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [lowStockThreshold, setLowStockThreshold] = useState<number>(5);
 
   // Dynamic Categories State
@@ -894,22 +896,38 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden relative">
       
+      {/* Mobile Backdrop overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* ================= SIDEBAR NAVIGATION ================= */}
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0">
+      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 z-50 md:z-auto transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         {/* Sidebar Header */}
         <div className="p-6 border-b border-slate-800 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-xl font-bold tracking-tight text-white">Akshvik Admin</span>
             <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Management Portal</span>
           </div>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="p-1 md:hidden hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Navigation items */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           <button
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "dashboard" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -918,7 +936,7 @@ export default function AdminPage() {
           </button>
           
           <button
-            onClick={() => setActiveTab("products")}
+            onClick={() => { setActiveTab("products"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "products" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -927,7 +945,7 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("orders")}
+            onClick={() => { setActiveTab("orders"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "orders" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -935,7 +953,7 @@ export default function AdminPage() {
             <ShoppingBag className="h-5 w-5" /> Orders ({orders.length})
           </button>
           <button
-            onClick={() => setActiveTab("categories")}
+            onClick={() => { setActiveTab("categories"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "categories" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -944,7 +962,7 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("customers")}
+            onClick={() => { setActiveTab("customers"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "customers" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -953,7 +971,7 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("coupons")}
+            onClick={() => { setActiveTab("coupons"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "coupons" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -962,7 +980,7 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("banners")}
+            onClick={() => { setActiveTab("banners"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
               activeTab === "banners" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
@@ -984,29 +1002,37 @@ export default function AdminPage() {
       </aside>
 
       {/* ================= MAIN CONTAINER ================= */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
-          <h2 className="text-lg font-bold text-slate-800 capitalize">{activeTab} Overview</h2>
-          <div className="flex items-center gap-6 text-sm font-medium">
-            <span className="text-slate-500">Server Status: <strong className="text-emerald-500 font-semibold">Online</strong></span>
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100 md:hidden cursor-pointer"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <h2 className="text-base md:text-lg font-bold text-slate-800 capitalize">{activeTab} Overview</h2>
+          </div>
+          <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm font-medium">
+            <span className="hidden lg:inline text-slate-500">Server Status: <strong className="text-emerald-500 font-semibold">Online</strong></span>
             <button
               onClick={() => setIsChangePasswordOpen(true)}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
             >
-              <Key className="h-4 w-4" /> Change Password
+              <Key className="h-4 w-4" /> <span className="hidden sm:inline">Change Password</span>
             </button>
             <button
               onClick={handleLogout}
-              className="text-rose-600 hover:text-rose-800 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="text-rose-600 hover:text-rose-800 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
             >
-              <LogOut className="h-4 w-4" /> Logout
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </header>
 
         {/* Scrollable View Area */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
           
           {/* ================= VIEW: DASHBOARD ================= */}
           {activeTab === "dashboard" && (

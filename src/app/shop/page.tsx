@@ -163,10 +163,10 @@ function ShopContent() {
         </div>
 
         {/* Filter Toolbar (Mobile triggers + Layout Toggle + Sort Dropdown) */}
-        <div className="flex items-center justify-between bg-brand-cream-white border border-brand-cream-dark p-4 rounded-2xl mb-6 shadow-xs gap-4">
+        <div className="flex flex-wrap items-center justify-between bg-brand-cream-white border border-brand-cream-dark p-3 sm:p-4 rounded-2xl mb-6 shadow-xs gap-2 sm:gap-4">
           <button
             onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex items-center gap-1.5 bg-brand-cream-dark text-brand-olive hover:text-brand-maroon px-4 py-2.5 rounded-full text-xs font-semibold"
+            className="lg:hidden flex items-center gap-1.5 bg-brand-cream-dark text-brand-olive hover:text-brand-maroon px-3 py-2 sm:px-4 sm:py-2.5 rounded-full text-xs font-semibold cursor-pointer"
           >
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </button>
@@ -175,26 +175,28 @@ function ShopContent() {
             <span className="font-bold text-brand-maroon">{filteredProducts.length}</span> Products found
           </div>
 
-          <div className="flex items-center gap-2.5 ml-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 ml-auto flex-wrap justify-end">
             <button 
               onClick={() => setIsInstagramLayout(!isInstagramLayout)}
-              className="flex items-center gap-1.5 text-xs font-bold bg-brand-cream-light text-brand-olive px-3.5 py-2.5 rounded-full hover:bg-brand-maroon hover:text-white transition-all shadow-xs cursor-pointer border border-brand-cream-dark/50"
+              className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold bg-brand-cream-light text-brand-olive px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-full hover:bg-brand-maroon hover:text-white transition-all shadow-xs cursor-pointer border border-brand-cream-dark/50"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               {isInstagramLayout ? "Classic View" : "Instagram View"}
             </button>
 
-            <ArrowUpDown className="h-4 w-4 text-brand-olive/60" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-brand-cream-light border-0 rounded-full text-xs font-semibold py-2.5 pl-4 pr-10 text-brand-olive focus:ring-2 focus:ring-brand-maroon/20"
-            >
-              <option value="default">Sort: Recommended</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
-            </select>
+            <div className="flex items-center gap-1">
+              <ArrowUpDown className="h-3.5 w-3.5 text-brand-olive/60" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-brand-cream-light border-0 rounded-full text-[11px] sm:text-xs font-semibold py-2 pl-3 pr-8 sm:py-2.5 sm:pl-4 sm:pr-10 text-brand-olive focus:ring-2 focus:ring-brand-maroon/20 cursor-pointer"
+              >
+                <option value="default">Sort: Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+              </select>
+            </div>
           </div>
         </div>
 

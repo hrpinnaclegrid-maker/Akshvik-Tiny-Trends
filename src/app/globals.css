@@ -8,6 +8,9 @@
 
   /* Register brand color tokens */
   --color-brand-cream: #FEFCF8;
+  --color-brand-cream-light: #FFFDF9;
+  --color-brand-cream-dark: #F0EAE1;
+  --color-brand-cream-white: #FFFFFF;
   --color-brand-white: #FFFFFF;
   --color-brand-green-dark: #3A5C2E;
   --color-brand-green-soft: #EEF3EA;
@@ -15,6 +18,11 @@
   --color-brand-orange: #E4611D;
   --color-brand-peach: #FFEFE8;
   --color-brand-text-muted: #6B7A63;
+  --color-brand-maroon: #800020;
+  --color-brand-maroon-light: #9B1C31;
+  --color-brand-maroon-pale: #FDF2F4;
+  --color-brand-olive: #4E6841;
+  --color-brand-olive-pale: #F1F5EE;
 }
 
 body {
