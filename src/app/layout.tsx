@@ -1,7 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito, Quicksand, Caveat } from "next/font/google";
 import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#4A5B31",
+};
 
 // Load fonts and assign them CSS variables to match globals.css
 const nunito = Nunito({
@@ -26,9 +33,14 @@ export const metadata: Metadata = {
   title: "Akshvik Tiny Trends | Kids Wear 0–10 Years",
   description: "Akshvik Tiny Trends — Premium kids clothing for 0–10 years. Organic muslin, breathable cotton, baby essentials & wooden toys. Shop online with fast delivery.",
   icons: {
-    icon: "/logo.jpeg",
-    apple: "/logo.jpeg",
-    shortcut: "/logo.jpeg",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
   },
   openGraph: {
     title: "Akshvik Tiny Trends | Kids Wear 0–10 Years",

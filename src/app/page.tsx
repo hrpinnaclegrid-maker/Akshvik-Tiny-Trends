@@ -20,11 +20,21 @@ import {
   Truck,
   RotateCcw,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  Star,
+  CheckCircle2,
+  ExternalLink,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  ShoppingBag,
+  Eye,
+  Heart
 } from "lucide-react";
 
 export default function Home() {
-  const { getProducts, getBanners } = useApp();
+  const { getProducts, getBanners, addToCart } = useApp();
   const allProducts = getProducts();
   const banners = getBanners();
 
@@ -133,6 +143,78 @@ export default function Home() {
   // Muslin & Wooden Toys
   const muslinProducts = allProducts.filter(p => p.category === "Muslin Collection");
   const woodenToysProducts = allProducts.filter(p => p.category === "Wooden Toys");
+
+  // Viral Instagram Reels Showcase
+  const [playingReelId, setPlayingReelId] = useState<string | null>("reel-2");
+  const [isReelMuted, setIsReelMuted] = useState(true);
+
+  const viralReels = [
+    {
+      id: "reel-1",
+      title: "Muslin Sunshine Frock ☀️",
+      views: "185K",
+      likes: "7.4K",
+      productId: "p1",
+      productName: "Pure Muslin Baby Girl Sunshine Frock",
+      price: 299,
+      poster: "/WebsiteImages/YellowfrockRetro.webp",
+      videoSrc: null,
+      caption: "100% breathable organic muslin fabric. Extremely gentle on newborn skin!",
+      tag: "Trending #1"
+    },
+    {
+      id: "reel-2",
+      title: "Cotton Footed Romper 👶",
+      views: "142K",
+      likes: "5.8K",
+      productId: "p3",
+      productName: "Baby Cotton Full Sleeve Jumpsuit Romper",
+      price: 249,
+      poster: "/WebsiteImages/Jumpauit.webp",
+      videoSrc: "/videos/sample-reel.mp4",
+      caption: "Full sleeve cosy footed rompers with easy diaper snap buttons. Perfect sleepwear!",
+      tag: "Viral on Reels"
+    },
+    {
+      id: "reel-3",
+      title: "Neem Wood Teether Set 🪵",
+      views: "98K",
+      likes: "4.1K",
+      productId: "p6",
+      productName: "Natural Neem Wood Rattle & Teether Set",
+      price: 349,
+      poster: "/WebsiteImages/wooden-toys.jpg",
+      videoSrc: null,
+      caption: "Anti-bacterial handcrafted neem wood toys. Smooth edges & chemical-free.",
+      tag: "Pediatrician Loved"
+    },
+    {
+      id: "reel-4",
+      title: "Tiered Birthday Party Frock 💖",
+      views: "210K",
+      likes: "8.9K",
+      productId: "p5",
+      productName: "Baby Girl Premium Tiered Party Frock",
+      price: 499,
+      poster: "/WebsiteImages/GraceC1473L.webp",
+      videoSrc: null,
+      caption: "Elegant party wear with ultra-soft inner lining so your little one stays comfortable!",
+      tag: "Most Viewed"
+    },
+    {
+      id: "reel-5",
+      title: "Cotton Daily Play Set 🧸",
+      views: "125K",
+      likes: "6.3K",
+      productId: "p2",
+      productName: "Infant Pure Cotton Casual Play Set",
+      price: 279,
+      poster: "/WebsiteImages/dailywear.webp",
+      videoSrc: null,
+      caption: "Pure combed cotton slub fabric for all-day running and playing comfort.",
+      tag: "Bestseller"
+    }
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-cream text-brand-green-dark">
@@ -466,75 +548,110 @@ export default function Home() {
         </section>
 
         {/* ================= 8. WHY CHOOSE US ================= */}
-        <section className="bg-brand-cream py-16 border-b border-brand-sage/20 font-quicksand">
+        <section className="bg-brand-cream py-12 md:py-16 border-b border-brand-sage/20 font-quicksand">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               
-              {/* Features Info */}
-              <div className="space-y-8">
+              {/* Features Info Column */}
+              <div className="space-y-6">
                 <div>
                   <span className="text-xs font-bold text-brand-orange uppercase tracking-widest mb-1.5 block">Our Core Promise</span>
-                  <h2 className="text-3xl md:text-4xl font-bold text-brand-green-dark leading-tight">Why Choose Akshvik Tiny Trends?</h2>
-                  <p className="text-sm text-brand-text-muted mt-3 leading-relaxed font-sans">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-green-dark leading-tight">Why Choose Akshvik Tiny Trends?</h2>
+                  <p className="text-xs sm:text-sm text-brand-text-muted mt-2.5 leading-relaxed font-sans">
                     We believe that premium quality kidswear should not compromise on safety or style. Every single collection item is crafted with utmost love and careful attention to your child&apos;s wellness.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                {/* Mobile-Only Feature Image (Immediately visible with section on mobile devices) */}
+                <div className="lg:hidden relative rounded-3xl overflow-hidden aspect-[4/3] bg-brand-green-soft shadow-md border border-brand-sage/40">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="/WebsiteImages/Babywear.webp" 
+                    alt="Happy baby in organic cotton dress" 
+                    className="w-full h-full object-cover object-[center_14%]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-green-dark/30 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <span className="bg-white/95 backdrop-blur-md text-brand-green-dark text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 animate-pulse-subtle">
+                      🌿 100% Organic Muslin & Cotton
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4 Feature Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                   {/* Card 1 */}
-                  <div className="bg-brand-white p-5 rounded-2xl border border-brand-sage/30 shadow-2xs flex gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-brand-green-soft text-brand-green-dark flex items-center justify-center flex-shrink-0">
-                      <Leaf className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-brand-green-dark text-sm">Premium Fabric</h4>
-                      <p className="text-[11px] text-brand-text-muted mt-0.5 leading-relaxed font-sans">Soft organic cotton and highly breathable muslin.</p>
+                  <div className="group relative bg-white p-4.5 sm:p-5 rounded-2xl border border-brand-sage/60 shadow-xs hover:shadow-lg hover:shadow-brand-green-dark/5 hover:-translate-y-1.5 hover:border-brand-orange/50 active:scale-[0.98] active:border-brand-orange active:bg-brand-peach/30 transition-all duration-300 cursor-pointer overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-peach/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="relative flex gap-3.5 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-brand-peach text-brand-orange flex items-center justify-center flex-shrink-0 shadow-2xs transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 animate-float-gentle">
+                        <Leaf className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-brand-green-dark group-hover:text-brand-orange text-sm sm:text-base transition-colors duration-200">Premium Fabric</h4>
+                        <p className="text-xs text-brand-text-muted mt-1 leading-relaxed font-sans">Soft organic cotton and highly breathable muslin.</p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 2 */}
-                  <div className="bg-brand-white p-5 rounded-2xl border border-brand-sage/30 shadow-2xs flex gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-brand-green-soft text-brand-green-dark flex items-center justify-center flex-shrink-0">
-                      <Smile className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-brand-green-dark text-sm">Safe for Baby Skin</h4>
-                      <p className="text-[11px] text-brand-text-muted mt-0.5 leading-relaxed font-sans">Chemical-free, hypoallergenic materials protecting skin.</p>
+                  <div className="group relative bg-white p-4.5 sm:p-5 rounded-2xl border border-brand-sage/60 shadow-xs hover:shadow-lg hover:shadow-brand-green-dark/5 hover:-translate-y-1.5 hover:border-brand-orange/50 active:scale-[0.98] active:border-brand-orange active:bg-brand-peach/30 transition-all duration-300 cursor-pointer overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-peach/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="relative flex gap-3.5 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-brand-green-soft text-brand-green-dark flex items-center justify-center flex-shrink-0 shadow-2xs transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 animate-pulse-subtle">
+                        <Smile className="h-5 w-5 text-brand-green-dark" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-brand-green-dark group-hover:text-brand-orange text-sm sm:text-base transition-colors duration-200">Safe for Baby Skin</h4>
+                        <p className="text-xs text-brand-text-muted mt-1 leading-relaxed font-sans">Chemical-free, hypoallergenic materials protecting skin.</p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 3 */}
-                  <div className="bg-brand-white p-5 rounded-2xl border border-brand-sage/30 shadow-2xs flex gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-brand-green-soft text-brand-green-dark flex items-center justify-center flex-shrink-0">
-                      <IndianRupee className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-brand-green-dark text-sm">Honest Pricing</h4>
-                      <p className="text-[11px] text-brand-text-muted mt-0.5 leading-relaxed font-sans">High quality boutique kidswear at reasonable rates.</p>
+                  <div className="group relative bg-white p-4.5 sm:p-5 rounded-2xl border border-brand-sage/60 shadow-xs hover:shadow-lg hover:shadow-brand-green-dark/5 hover:-translate-y-1.5 hover:border-brand-orange/50 active:scale-[0.98] active:border-brand-orange active:bg-brand-peach/30 transition-all duration-300 cursor-pointer overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-peach/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="relative flex gap-3.5 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-700 flex items-center justify-center flex-shrink-0 shadow-2xs transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 animate-float-gentle">
+                        <IndianRupee className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-brand-green-dark group-hover:text-brand-orange text-sm sm:text-base transition-colors duration-200">Honest Pricing</h4>
+                        <p className="text-xs text-brand-text-muted mt-1 leading-relaxed font-sans">High quality boutique kidswear at reasonable rates.</p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card 4 */}
-                  <div className="bg-brand-white p-5 rounded-2xl border border-brand-sage/30 shadow-2xs flex gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-brand-green-soft text-brand-green-dark flex items-center justify-center flex-shrink-0">
-                      <Award className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-brand-green-dark text-sm">Trendy Designs</h4>
-                      <p className="text-[11px] text-brand-text-muted mt-0.5 leading-relaxed font-sans">Cute daily wear to elegant party outfits.</p>
+                  <div className="group relative bg-white p-4.5 sm:p-5 rounded-2xl border border-brand-sage/60 shadow-xs hover:shadow-lg hover:shadow-brand-green-dark/5 hover:-translate-y-1.5 hover:border-brand-orange/50 active:scale-[0.98] active:border-brand-orange active:bg-brand-peach/30 transition-all duration-300 cursor-pointer overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-peach/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="relative flex gap-3.5 items-start">
+                      <div className="w-11 h-11 rounded-xl bg-brand-peach text-brand-orange flex items-center justify-center flex-shrink-0 shadow-2xs transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 animate-pulse-subtle">
+                        <Award className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-brand-green-dark group-hover:text-brand-orange text-sm sm:text-base transition-colors duration-200">Trendy Designs</h4>
+                        <p className="text-xs text-brand-text-muted mt-1 leading-relaxed font-sans">Cute daily wear to elegant party outfits.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Feature Mockup Image */}
-              <div className="relative rounded-3xl overflow-hidden aspect-video lg:aspect-square bg-brand-green-soft shadow-md border border-brand-sage/40">
+              {/* Desktop-Only Feature Mockup Image */}
+              <div className="hidden lg:block group relative rounded-3xl overflow-hidden aspect-square bg-brand-green-soft shadow-md hover:shadow-xl border border-brand-sage/40 transition-all duration-500">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src="/WebsiteImages/Babywear.webp" 
                   alt="Happy baby in cotton dress" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-[center_14%] transition-transform duration-700 ease-out group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-green-dark/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between pointer-events-none">
+                  <span className="bg-white/95 backdrop-blur-md text-brand-green-dark text-xs font-bold px-4 py-2 rounded-full shadow-md flex items-center gap-2">
+                    🌿 100% Pure Organic Cotton & Muslin
+                  </span>
+                </div>
               </div>
 
             </div>
@@ -599,6 +716,416 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ================= 11. SHOP THE GRAM • VIRAL REELS SHOWCASE (HIDDEN FOR NOW) ================= */}
+        {false && (
+        <section className="bg-stone-900 text-white py-16 md:py-20 font-quicksand relative overflow-hidden">
+          {/* Subtle background glow accents */}
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-[#E1306C]/20 to-[#F77737]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-gradient-to-tl from-[#5851DB]/20 to-[#833AB4]/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-3.5 py-1 rounded-full text-xs font-bold text-white shadow-sm mb-3">
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                  <span>Shop The Gram • @akshvik_tiny_trends</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Trending Viral Reels
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-300 mt-2 max-w-xl font-sans">
+                  Watch our top-viewed Instagram reels to see the real fabric drape, fit, and smiles on little cuties. Tap any product to shop it directly!
+                </p>
+              </div>
+
+              <a
+                href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-95 text-white font-bold px-5 py-3 rounded-full text-xs shadow-lg transition-all hover:scale-105 w-fit"
+              >
+                <span>Follow on Instagram</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+
+            {/* Reels Carousel / Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+              {viralReels.map((reel) => {
+                const isPlaying = playingReelId === reel.id;
+                const matchedProduct = allProducts.find(p => p.id === reel.productId);
+
+                return (
+                  <div
+                    key={reel.id}
+                    className="group relative rounded-3xl overflow-hidden bg-stone-800 border border-stone-700/80 shadow-xl flex flex-col justify-between aspect-[9/16] transition-all duration-300 hover:border-[#DD2A7B]/80 hover:shadow-2xl hover:shadow-[#DD2A7B]/10 hover:-translate-y-1.5"
+                  >
+                    {/* Media Layer (Video or Poster) */}
+                    <div className="absolute inset-0 z-0 bg-stone-900">
+                      {reel.videoSrc ? (
+                        <video
+                          src={reel.videoSrc}
+                          poster={reel.poster}
+                          autoPlay
+                          loop
+                          muted={isReelMuted}
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={reel.poster}
+                          alt={reel.title}
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/60 pointer-events-none" />
+                    </div>
+
+                    {/* Top Overlay (Badge, Views, Mute/Play Controls) */}
+                    <div className="relative z-10 p-3.5 flex items-center justify-between">
+                      <span className="bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                        <span className="text-[#FF5252]">🔥</span> {reel.views}
+                      </span>
+
+                      {reel.videoSrc ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsReelMuted(!isReelMuted);
+                          }}
+                          className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                          aria-label={isReelMuted ? "Unmute" : "Mute"}
+                        >
+                          {isReelMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                        </button>
+                      ) : (
+                        <span className="bg-[#DD2A7B]/90 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
+                          {reel.tag}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Center Action Indicator */}
+                    <div className="relative z-10 flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl scale-90 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-white ml-0.5" />
+                      </div>
+                    </div>
+
+                    {/* Bottom Tagged Product Card (Shop The Look) */}
+                    <div className="relative z-10 p-3 space-y-2">
+                      <p className="text-[11px] text-stone-200 line-clamp-2 leading-tight font-sans drop-shadow-sm">
+                        {reel.caption}
+                      </p>
+
+                      <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 shadow-lg border border-white/30 text-stone-900 transition-transform duration-200 group-hover:scale-[1.02]">
+                        <div className="flex items-center gap-2 mb-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={reel.poster}
+                            alt={reel.productName}
+                            className="w-10 h-10 rounded-xl object-cover border border-stone-200 flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[11px] font-bold text-stone-900 truncate leading-snug">
+                              {reel.productName}
+                            </h4>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-xs font-black text-brand-orange">
+                                ₹{reel.price}
+                              </span>
+                              <span className="text-[9px] text-emerald-700 bg-emerald-50 font-bold px-1.5 py-0.2 rounded">
+                                In Stock
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Direct Add to Cart / Shop Button */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (matchedProduct) {
+                                addToCart(matchedProduct, 1);
+                              }
+                            }}
+                            className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold py-1.5 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+                          >
+                            <ShoppingBag className="h-3 w-3" />
+                            <span>Add to Bag</span>
+                          </button>
+
+                          <a
+                            href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors flex items-center justify-center"
+                            title="Watch Reel on Instagram"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom Instagram Trust Strip */}
+            <div className="mt-8 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs text-stone-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Follow <strong>@akshvik_tiny_trends</strong> on Instagram for new arrival drops &amp; daily story sale updates!</span>
+              </div>
+              <a
+                href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-white hover:text-brand-orange transition-colors flex items-center gap-1"
+              >
+                <span>Open Instagram App</span>
+                <ChevronRight className="h-4 w-4" />
+              </a>
+            </div>
+
+          </div>
+        </section>
+        )}
+
+        {/* ================= 12. GOOGLE BUSINESS VERIFIED REVIEWS ================= */}
+        <section className="bg-[#FEFCF8] py-16 md:py-20 border-b border-brand-sage/30 font-quicksand">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            {/* Top Google Header Card */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-brand-sage/50 shadow-sm mb-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-2 bg-brand-peach px-3.5 py-1 rounded-full text-[11px] font-bold text-brand-orange">
+                  <span className="w-2 h-2 rounded-full bg-brand-orange animate-ping" />
+                  Official Google Business Profile Listing
+                </div>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-green-dark tracking-tight">
+                  Real Reviews from Real Parents
+                </h2>
+                <p className="text-xs sm:text-sm text-brand-text-muted leading-relaxed font-sans">
+                  Genuine ratings from families visiting our boutique in <strong>Mallampet Road, Bachupally, Hyderabad</strong> or ordering online. Every rating is 100% genuine and verified on Google Maps.
+                </p>
+                <div className="flex items-center gap-2 pt-1 text-[11px] text-stone-500 font-sans">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                  <span>Verified Google Business Profile Owner: <strong>reddisubrahmanyeswari@gmail.com</strong></span>
+                </div>
+              </div>
+
+              {/* Google Business Rating Badge & Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto flex-shrink-0">
+                {/* Official Google Score Card */}
+                <div className="w-full sm:w-auto bg-[#FEFCF8] border border-brand-sage/60 rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+                  <svg className="w-9 h-9 flex-shrink-0" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xl font-black text-brand-green-dark">5.0</span>
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-current text-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[11px] font-semibold text-stone-500 font-sans">
+                      63 Verified Reviews on Google Maps (5.0 ★)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <a
+                    href="https://maps.google.com/?q=Akshvik+Tiny+Trends+Mallampet+Bachupally+Hyderabad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 font-bold px-4 py-3.5 rounded-2xl text-xs md:text-sm shadow-xs transition-all hover:scale-105"
+                  >
+                    View on Maps <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+
+                  <a
+                    href="https://g.page/r/CWs-yTSDa5s-EBE/review"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-brand-orange hover:bg-brand-orange/90 text-white font-bold px-5 py-3.5 rounded-2xl text-xs md:text-sm shadow-md transition-all hover:scale-105"
+                  >
+                    Post a Review <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Authentic Verified Store Customer Reviews Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  author: "Srujana Vannekari",
+                  reviewerType: "Verified Customer • 2 reviews",
+                  location: "Bachupally Store Visit",
+                  avatarColor: "bg-emerald-100 text-emerald-800",
+                  initial: "S",
+                  isNew: true,
+                  date: "1 week ago",
+                  text: "Shopped at Akshvik tiny trends today for my daughter and son. Felt happy and warmth the way they received the customers. They have a broad range variety of ethnic, indo western stylish collections for kids until 13 years. They have their own brand cloth specially made from the vendors which is warmth and soft cloth."
+                },
+                {
+                  author: "SYED AZHAR",
+                  reviewerType: "Local Guide • 9 reviews • 3 photos",
+                  location: "Mallampet - Bachupally",
+                  avatarColor: "bg-blue-100 text-blue-800",
+                  initial: "S",
+                  isNew: false,
+                  date: "6 months ago",
+                  text: "Best and only exclusive kids wear store in mallampet - bachupally. Beautiful and nice collection at reasonable prices."
+                },
+                {
+                  author: "ERANKI SRIRAM VISHWAS",
+                  reviewerType: "Verified Customer • 1 review",
+                  location: "In-Store Experience",
+                  avatarColor: "bg-purple-100 text-purple-800",
+                  initial: "E",
+                  isNew: false,
+                  date: "5 months ago",
+                  text: "... and I'm really happy with my experience. The clothes are super soft, gentle on my baby's skin, and very comfortable for everyday wear. The quality is excellent, and the designs are adorable too. The customer service was also very good—"
+                },
+                {
+                  author: "Raja Reddy",
+                  reviewerType: "Local Guide • 22 reviews • 45 photos",
+                  location: "Bachupally, Hyderabad",
+                  avatarColor: "bg-amber-100 text-amber-800",
+                  initial: "R",
+                  isNew: false,
+                  date: "2 months ago",
+                  text: "Very affordable prices with excellent-quality products. Highly recommended for anyone looking for great value and a satisfying shopping experience."
+                },
+                {
+                  author: "Lingaiah Anaparthi",
+                  reviewerType: "Verified Customer • 3 reviews",
+                  location: "Hyderabad",
+                  avatarColor: "bg-rose-100 text-rose-800",
+                  initial: "L",
+                  isNew: false,
+                  date: "6 months ago",
+                  text: "Loved this shop! 😍 So many cute and colorful outfits for kids. The clothes are soft, comfortable, and perfect for daily wear or special occasions. Definitely coming back again! ..."
+                },
+                {
+                  author: "Bobbadi Subrahmanyam",
+                  reviewerType: "Verified Customer • 4 reviews",
+                  location: "Mallampet Road",
+                  avatarColor: "bg-teal-100 text-teal-800",
+                  initial: "B",
+                  isNew: false,
+                  date: "3 months ago",
+                  text: "Affordable prices and comfortable clothes for babies. Muslin collection is nice 👍.Nice staff .."
+                },
+              ].map((review, idx) => (
+                <div 
+                  key={idx} 
+                  className="bg-white rounded-3xl p-6 border border-brand-sage/50 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                >
+                  <div className="space-y-3">
+                    {/* Review Header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-2xs ${review.avatarColor}`}>
+                          {review.initial}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-bold text-sm text-brand-green-dark leading-tight">{review.author}</h4>
+                            {review.isNew && (
+                              <span className="bg-brand-peach text-brand-orange text-[9px] font-extrabold px-1.5 py-0.2 rounded uppercase">
+                                NEW
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-brand-orange font-bold block font-sans mt-0.5">{review.reviewerType}</span>
+                        </div>
+                      </div>
+
+                      {/* Google G Logo */}
+                      <svg className="w-4 h-4 flex-shrink-0 mt-1" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                      </svg>
+                    </div>
+
+                    {/* Star Rating & Location */}
+                    <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-3.5 w-3.5 fill-current text-amber-400" />
+                        ))}
+                      </div>
+                      <span className="text-[11px] text-stone-400 font-medium font-sans">
+                        {review.date}
+                      </span>
+                    </div>
+
+                    {/* Review Content */}
+                    <p className="text-xs text-stone-700 leading-relaxed font-sans pt-1">
+                      &ldquo;{review.text}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom Google Verification & Physical Store Details Strip */}
+            <div className="mt-10 p-5 bg-white rounded-3xl border border-brand-sage/50 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left shadow-2xs">
+              <div className="space-y-1">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-stone-800 font-bold font-sans">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                  <span>Physical Store: Above HDFC Bank, Beside Indian Oil Petrol Bunk, Mallampet Road, Bachupally, Hyderabad – 500090</span>
+                </div>
+                <p className="text-[11px] text-stone-500 font-sans">
+                  In-Store Shopping • In-Store Pick-Up • Delivery • Customer Rating: <strong>5.0 / 5.0 (63 Google Reviews)</strong>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a 
+                  href="https://g.page/r/CWs-yTSDa5s-EBE/review"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold bg-brand-peach text-brand-orange hover:bg-brand-peach/80 px-4 py-2.5 rounded-xl transition-all"
+                >
+                  <span>Leave 5★ Review</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+
+                <a 
+                  href="https://maps.google.com/?q=Akshvik+Tiny+Trends+Mallampet+Bachupally+Hyderabad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold bg-brand-green-dark text-white hover:bg-brand-green-dark/90 px-4 py-2.5 rounded-xl shadow-xs transition-all hover:scale-105"
+                >
+                  <span>Open in Google Maps</span>
+                  <ChevronRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+
           </div>
         </section>
 

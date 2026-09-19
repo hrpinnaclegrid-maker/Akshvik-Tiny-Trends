@@ -64,6 +64,7 @@ export default function ProductDetail({ params }: PageProps) {
   const [newReviewName, setNewReviewName] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewComment, setNewReviewComment] = useState("");
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   // Image Zoom Lightbox Modal
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -98,8 +99,8 @@ export default function ProductDetail({ params }: PageProps) {
         } else {
           // Default mock reviews
           const mock = [
-            { name: "Meera R.", rating: 5, comment: "Super soft fabric, perfect for Delhi summers. The stitching is excellent.", date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString() },
-            { name: "Rahul S.", rating: 4, comment: "Satisfied with the muslin feel. Sizes run slightly large but fitting is good.", date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toLocaleDateString() }
+            { name: "Sandhya V.", rating: 5, comment: "Super soft muslin fabric, perfect for Hyderabad weather. The stitching and snap buttons are excellent.", date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString() },
+            { name: "Rahul S.", rating: 5, comment: "Bought this at the Bachupally store. Pure cotton feel and very comfortable on baby skin.", date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toLocaleDateString() }
           ];
           localStorage.setItem(`akshvik_reviews_${product.id}`, JSON.stringify(mock));
           setLocalReviews(mock);
@@ -136,13 +137,12 @@ export default function ProductDetail({ params }: PageProps) {
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    addToCart(product, quantity, selectedSize, selectedColor);
-    alert(`${product.name} added to cart!`);
+    addToCart(product, quantity, selectedSize, selectedColor, true);
   };
 
   const handleBuyNow = () => {
     if (isOutOfStock) return;
-    addToCart(product, quantity, selectedSize, selectedColor);
+    addToCart(product, quantity, selectedSize, selectedColor, false);
     router.push("/checkout");
   };
 
@@ -218,7 +218,8 @@ export default function ProductDetail({ params }: PageProps) {
     setNewReviewName("");
     setNewReviewRating(5);
     setNewReviewComment("");
-    alert("Thank you! Your review has been added.");
+    setReviewSubmitted(true);
+    setTimeout(() => setReviewSubmitted(false), 5000);
   };
 
   // Calculating dynamic average review rating
@@ -635,9 +636,14 @@ export default function ProductDetail({ params }: PageProps) {
                   </div>
 
                   {/* Add Review Form */}
-                  <form onSubmit={handleReviewSubmit} className="flex-1 max-w-md space-y-3 bg-brand-cream-light/40 border border-brand-cream-dark/50 p-4 rounded-2xl">
-                    <h4 className="font-serif font-bold text-sm text-brand-olive">Write a Review</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                  <form onSubmit={handleReviewSubmit} className="flex-1 max-w-md space-y-3 bg-white border border-brand-sage/60 p-4 rounded-2xl shadow-2xs font-quicksand">
+                    <h4 className="font-bold text-sm text-brand-green-dark">Write a Review</h4>
+                    {reviewSubmitted && (
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold p-2.5 rounded-xl flex items-center gap-1.5">
+                        <span>✓</span> Thank you! Your review has been added.
+                      </div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div>
                         <input 
                           type="text" 
@@ -645,14 +651,14 @@ export default function ProductDetail({ params }: PageProps) {
                           placeholder="Your Name"
                           value={newReviewName}
                           onChange={(e) => setNewReviewName(e.target.value)}
-                          className="bg-white border border-brand-cream-dark rounded-lg px-2.5 py-1.5 w-full font-semibold"
+                          className="bg-brand-cream border border-brand-sage/60 rounded-xl px-3 py-2 w-full font-semibold text-brand-green-dark focus:outline-none focus:ring-1 focus:ring-brand-orange"
                         />
                       </div>
                       <div>
                         <select 
                           value={newReviewRating} 
                           onChange={(e) => setNewReviewRating(Number(e.target.value))}
-                          className="bg-white border border-brand-cream-dark rounded-lg px-2.5 py-1.5 w-full font-semibold"
+                          className="bg-brand-cream border border-brand-sage/60 rounded-xl px-3 py-2 w-full font-semibold text-brand-green-dark focus:outline-none focus:ring-1 focus:ring-brand-orange"
                         >
                           <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
                           <option value={4}>⭐⭐⭐⭐ (4/5)</option>
@@ -669,12 +675,12 @@ export default function ProductDetail({ params }: PageProps) {
                         placeholder="Tell us about the fabric texture, fit, or look..."
                         value={newReviewComment}
                         onChange={(e) => setNewReviewComment(e.target.value)}
-                        className="bg-white border border-brand-cream-dark rounded-lg p-2 w-full text-xs resize-none font-semibold"
+                        className="bg-brand-cream border border-brand-sage/60 rounded-xl p-3 w-full text-xs resize-none font-semibold text-brand-green-dark focus:outline-none focus:ring-1 focus:ring-brand-orange"
                       />
                     </div>
                     <button 
                       type="submit" 
-                      className="bg-brand-maroon hover:bg-brand-maroon-light text-brand-cream-light font-bold text-xs py-2 px-4 rounded-lg transition"
+                      className="bg-brand-orange hover:bg-brand-orange/90 text-white font-bold text-xs py-2 px-5 rounded-full transition shadow-xs cursor-pointer"
                     >
                       Post Review
                     </button>
@@ -682,20 +688,20 @@ export default function ProductDetail({ params }: PageProps) {
                 </div>
 
                 {/* Reviews List */}
-                <div className="space-y-4 max-h-72 overflow-y-auto">
+                <div className="space-y-4 max-h-72 overflow-y-auto font-quicksand">
                   {localReviews.length === 0 ? (
-                    <p className="text-xs text-brand-olive/50 italic text-center">Be the first to review this product!</p>
+                    <p className="text-xs text-brand-text-muted italic text-center">Be the first to review this product!</p>
                   ) : (
                     localReviews.map((r, i) => (
-                      <div key={i} className="border-b border-brand-cream-dark/30 pb-3 text-xs space-y-1">
-                        <div className="flex justify-between font-bold text-brand-olive">
+                      <div key={i} className="border-b border-brand-sage/30 pb-3 text-xs space-y-1">
+                        <div className="flex justify-between font-bold text-brand-green-dark">
                           <span>{r.name}</span>
-                          <span className="text-slate-400 font-semibold">{r.date}</span>
+                          <span className="text-stone-400 font-semibold">{r.date}</span>
                         </div>
-                        <div className="flex text-brand-gold">
+                        <div className="flex text-amber-400">
                           {Array.from({ length: r.rating }, (_, k) => <Star key={k} className="h-3 w-3 fill-current" />)}
                         </div>
-                        <p className="text-brand-olive/80 font-medium leading-relaxed">{r.comment}</p>
+                        <p className="text-brand-green-dark/80 font-medium leading-relaxed font-sans">{r.comment}</p>
                       </div>
                     ))
                   )}

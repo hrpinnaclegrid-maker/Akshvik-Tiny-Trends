@@ -8,6 +8,7 @@ import { WHATSAPP_NUMBER } from "@/context/AppContext";
 
 export const Footer: React.FC = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,8 +21,9 @@ export const Footer: React.FC = () => {
         list.push(newsletterEmail.trim());
         localStorage.setItem("akshvik_newsletter_subs", JSON.stringify(list));
       }
-      alert(`Thank you for subscribing! ${newsletterEmail} has been added.`);
+      setIsSubscribed(true);
       setNewsletterEmail("");
+      setTimeout(() => setIsSubscribed(false), 6000);
     }
   };
 
@@ -64,7 +66,7 @@ export const Footer: React.FC = () => {
               </a>
               {/* Instagram */}
               <a
-                href="https://www.instagram.com/akshvik_tiny_trends?igsh=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
@@ -79,9 +81,11 @@ export const Footer: React.FC = () => {
               </a>
               {/* YouTube */}
               <a
-                href="#"
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
-                style={{ backgroundColor: "#3A5B2C", color: "#D4E3CB" }}
+                href="https://youtube.com/@akshviktinytrends?si=tmGcZHD0ri17ZQof"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 hover:brightness-110"
+                style={{ backgroundColor: "#FF0000", color: "#FFFFFF" }}
                 aria-label="YouTube"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -151,6 +155,14 @@ export const Footer: React.FC = () => {
                   title="Google Maps Mallampet Hyderabad Location"
                 />
               </div>
+              <a
+                href="https://g.page/r/CWs-yTSDa5s-EBE/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors pt-1"
+              >
+                <span>⭐ 5.0 on Google (63 Reviews) • Post a Review</span>
+              </a>
             </div>
           </div>
 
@@ -180,6 +192,11 @@ export const Footer: React.FC = () => {
                 <Mail className="h-4 w-4" />
               </button>
             </form>
+            {isSubscribed && (
+              <p className="text-xs font-bold flex items-center gap-1.5" style={{ color: "#DAE3C6" }}>
+                <span>✓</span> Thank you for subscribing to our updates!
+              </p>
+            )}
             <div className="space-y-3 text-sm font-semibold pt-2" style={{ color: "#B5C9A8" }}>
               <div className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 flex-shrink-0" style={{ color: "#E8571A" }} />
@@ -201,13 +218,39 @@ export const Footer: React.FC = () => {
 
         {/* ── Bottom Bar ── */}
         <div
-          className="flex flex-col sm:flex-row items-center justify-between pt-8 text-xs font-bold gap-4"
-          style={{ color: "#4D7A3C" }}
+          className="border-t pt-6 mt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs"
+          style={{ borderColor: "#3A5B2C", color: "#B5C9A8" }}
         >
           <p>© {new Date().getFullYear()} Akshvik Tiny Trends. All Rights Reserved. Made with 🧡 for tiny humans.</p>
-          <div className="flex gap-4">
-            <span className="opacity-80">Cash on Delivery</span>
-            <span className="opacity-80">Razorpay Online Payment</span>
+          
+          {/* Agency & Developer Credit */}
+          <p className="flex flex-wrap items-center justify-center gap-1.5 text-[11px] font-medium">
+            <span>Designed &amp; Developed by</span>
+            <a
+              href="https://pinnaclegrid.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-white hover:text-[#F46F20] transition-colors underline decoration-[#F46F20]/60 hover:decoration-[#F46F20]"
+            >
+              PinnacleGrid
+            </a>
+            <span className="opacity-40">•</span>
+            <span>
+              Developer:{" "}
+              <a
+                href="https://www.linkedin.com/in/amitesh-jha-a2b932215"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white font-semibold hover:text-[#F46F20] transition-colors underline decoration-[#F46F20]/40 hover:decoration-[#F46F20]"
+              >
+                Amitesh Jha
+              </a>
+            </span>
+          </p>
+
+          <div className="flex gap-4 text-[11px] opacity-75">
+            <span>Cash on Delivery</span>
+            <span>Razorpay Secured</span>
           </div>
         </div>
       </div>

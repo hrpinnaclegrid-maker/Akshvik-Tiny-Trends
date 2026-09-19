@@ -96,7 +96,9 @@ interface AppContextType {
 
   // Cart Operations
   cart: CartItem[];
-  addToCart: (product: Product, quantity: number, size?: string, color?: string) => void;
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  addToCart: (product: Product, quantity: number, size?: string, color?: string, openDrawer?: boolean) => void;
   removeFromCart: (productId: string, size?: string, color?: string) => void;
   updateCartQuantity: (productId: string, quantity: number, size?: string, color?: string) => void;
   clearCart: () => void;
@@ -114,7 +116,7 @@ interface AppContextType {
   // Order Operations
   getOrders: () => Order[];
   placeOrder: (
-    orderDetails: Omit<Order, "id" | "orderId" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
+    orderDetails: Record<string, any>
   ) => Promise<Order>;
   updateOrderStatus: (id: string, status: Order["orderStatus"]) => Promise<Order>;
   updatePaymentStatus: (id: string, status: Order["paymentStatus"]) => Promise<Order>;
@@ -446,6 +448,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [luckyWinner, setLuckyWinner] = useState<string>("Aarav");
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
   // Initialize data from backend APIs and localStorage
   useEffect(() => {
@@ -570,7 +573,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // ----------------------------------------------------
   // Cart Operations
   // ----------------------------------------------------
-  const addToCart = (product: Product, quantity: number, size?: string, color?: string) => {
+  const addToCart = (product: Product, quantity: number, size?: string, color?: string, openDrawer: boolean = true) => {
     const freshProduct = { ...product, inStock: product.stockQuantity > 0 };
     const existingIndex = cart.findIndex(
       (item) =>
@@ -591,6 +594,10 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         selectedColor: color || freshProduct.colors?.[0]
       };
       syncCart([...cart, newItem]);
+    }
+
+    if (openDrawer) {
+      setIsCartOpen(true);
     }
   };
 
@@ -679,7 +686,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const placeOrder = async (
-    orderDetails: Omit<Order, "id" | "orderId" | "createdAt" | "orderStatus" | "paymentStatus" | "returnRequested">
+    orderDetails: Record<string, any>
   ): Promise<Order> => {
     const res = await fetch("/api/orders", {
       method: "POST",
@@ -813,6 +820,8 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateProduct,
         deleteProduct,
         cart,
+        isCartOpen,
+        setIsCartOpen,
         addToCart,
         removeFromCart,
         updateCartQuantity,

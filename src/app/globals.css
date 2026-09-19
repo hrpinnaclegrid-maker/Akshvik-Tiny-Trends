@@ -5,24 +5,33 @@
   --font-sans: var(--font-nunito), sans-serif;
   --font-quicksand: var(--font-quicksand), sans-serif;
   --font-caveat: var(--font-caveat), cursive;
+  --font-serif: var(--font-quicksand), sans-serif;
 
-  /* Register brand color tokens */
+  /* Official Akshvik Logo Matched Color Tokens */
   --color-brand-cream: #FEFCF8;
   --color-brand-cream-light: #FFFDF9;
-  --color-brand-cream-dark: #F0EAE1;
+  --color-brand-cream-dark: #F5EFEB;
   --color-brand-cream-white: #FFFFFF;
   --color-brand-white: #FFFFFF;
-  --color-brand-green-dark: #3A5C2E;
-  --color-brand-green-soft: #EEF3EA;
-  --color-brand-sage: #D9E5CF;
-  --color-brand-orange: #E4611D;
-  --color-brand-peach: #FFEFE8;
+  --color-brand-green-dark: #4A5B31; /* Sampled from logo 'Tiny Trends' text */
+  --color-brand-green-soft: #EEF3EA; /* Light wash for cards and tags */
+  --color-brand-sage: #DAE3C6;       /* Sampled from logo baby elephant mint body */
+  --color-brand-orange: #F46F20;     /* Sampled from logo 'AKSHVIK' text & crown */
+  --color-brand-peach: #FFEFE8;      /* Sampled from elephant blush cheek */
+  --color-brand-peach-pale: #FFF7F3;
   --color-brand-text-muted: #6B7A63;
-  --color-brand-maroon: #800020;
-  --color-brand-maroon-light: #9B1C31;
-  --color-brand-maroon-pale: #FDF2F4;
-  --color-brand-olive: #4E6841;
-  --color-brand-olive-pale: #F1F5EE;
+
+  /* Harmonized aliases for brand safety */
+  --color-brand-maroon: #F46F20;
+  --color-brand-maroon-light: #E35E10;
+  --color-brand-maroon-pale: #FFEFE8;
+  --color-brand-olive: #4A5B31;
+  --color-brand-olive-pale: #EEF3EA;
+}
+
+html, body {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -54,4 +63,30 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 3.5s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.8s ease-in-out infinite;
 }

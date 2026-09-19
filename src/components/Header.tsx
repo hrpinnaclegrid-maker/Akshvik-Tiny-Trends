@@ -22,6 +22,8 @@ export const Header: React.FC = () => {
   const router = useRouter();
   const { 
     cart, 
+    isCartOpen,
+    setIsCartOpen,
     removeFromCart, 
     updateCartQuantity, 
     cartSubtotal, 
@@ -32,7 +34,6 @@ export const Header: React.FC = () => {
     getProducts
   } = useApp();
 
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -69,7 +70,7 @@ export const Header: React.FC = () => {
       {/* ── 2. Main Header ── */}
       <header className="bg-brand-cream border-b border-brand-sage sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24 gap-4">
+          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 gap-2 sm:gap-4">
 
             {/* Mobile Menu Toggle */}
             <button
@@ -82,14 +83,14 @@ export const Header: React.FC = () => {
 
             {/* ── Brand Logo ── */}
             <div className="flex-shrink-0">
-              <Link href="/" className="block select-none py-2" aria-label="Akshvik Tiny Trends Home">
+              <Link href="/" className="block select-none py-1 sm:py-2" aria-label="Akshvik Tiny Trends Home">
                 <Image
                   src="/logo.jpeg"
                   alt="Akshvik Tiny Trends Logo"
                   width={240}
                   height={80}
                   priority
-                  className="h-20 w-auto object-contain"
+                  className="h-12 sm:h-16 lg:h-20 w-auto object-contain"
                 />
               </Link>
             </div>

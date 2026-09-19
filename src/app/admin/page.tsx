@@ -192,8 +192,8 @@ const PrimaryImageUploader = ({
         onClick={() => fileInputRef.current?.click()}
         className={`w-full border-1.5 border-dashed rounded-[8px] p-6 text-center cursor-pointer transition-all ${
           isDragOver 
-            ? "border-[#6366f1] bg-[#eef2ff]" 
-            : "border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#6366f1] hover:bg-[#eef2ff]"
+            ? "border-[#F46F20] bg-[#eef2ff]" 
+            : "border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#F46F20] hover:bg-[#eef2ff]"
         } flex flex-col items-center justify-center`}
       >
         <input
@@ -206,7 +206,7 @@ const PrimaryImageUploader = ({
           className="hidden"
           accept="image/*"
         />
-        <CloudUpload className="h-8 w-8 text-[#6366f1] mb-2" />
+        <CloudUpload className="h-8 w-8 text-[#F46F20] mb-2" />
         <span className="text-[12px] font-bold text-[#1e293b]">
           {loading ? "Uploading..." : "Drag & drop or click to upload"}
         </span>
@@ -235,7 +235,7 @@ const PrimaryImageUploader = ({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder="https://example.com/image.jpg"
-            className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
+            className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
           />
         </div>
       </div>
@@ -310,7 +310,7 @@ const GalleryImageUploader = ({
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="w-20 h-20 border-1.5 border-dashed border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#6366f1] hover:bg-[#eef2ff] rounded-[8px] flex flex-col items-center justify-center cursor-pointer transition-all flex-shrink-0"
+          className="w-20 h-20 border-1.5 border-dashed border-[#c7d2fe] bg-[#f8f9fc] hover:border-[#F46F20] hover:bg-[#eef2ff] rounded-[8px] flex flex-col items-center justify-center cursor-pointer transition-all flex-shrink-0"
         >
           <input
             type="file"
@@ -322,8 +322,8 @@ const GalleryImageUploader = ({
             className="hidden"
             accept="image/*"
           />
-          <Plus className="h-5 w-5 text-[#6366f1]" />
-          <span className="text-[9px] text-[#6366f1] font-bold mt-1">
+          <Plus className="h-5 w-5 text-[#F46F20]" />
+          <span className="text-[9px] text-[#F46F20] font-bold mt-1">
             {loading ? "..." : "Add"}
           </span>
         </div>
@@ -338,7 +338,7 @@ const GalleryImageUploader = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="url1, url2, url3"
-          className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
+          className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
         />
       </div>
     </div>
@@ -863,7 +863,7 @@ export default function AdminPage() {
                   required
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="relative block w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-950 placeholder-slate-400 focus:z-10 focus:border-indigo-500 focus:outline-hidden focus:ring-indigo-500 sm:text-sm"
+                  className="relative block w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-950 placeholder-slate-400 focus:z-10 focus:border-[#F46F20] focus:outline-hidden focus:ring-[#F46F20]/20 sm:text-sm"
                   placeholder="Enter Admin Password"
                 />
               </div>
@@ -878,7 +878,7 @@ export default function AdminPage() {
             <div>
               <button
                 type="submit"
-                className="group relative flex w-full justify-center rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition cursor-pointer"
+                className="group relative flex w-full justify-center rounded-2xl bg-[#F46F20] px-4 py-3 text-sm font-semibold text-white hover:bg-[#E05E12] transition cursor-pointer"
               >
                 Log In
               </button>
@@ -911,10 +911,17 @@ export default function AdminPage() {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}>
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-white">Akshvik Admin</span>
-            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Management Portal</span>
+        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/logo.jpeg" 
+              alt="Akshvik Logo" 
+              className="w-10 h-10 rounded-xl object-contain bg-white p-0.5 shadow-sm border border-slate-700 flex-shrink-0" 
+            />
+            <div className="flex flex-col">
+              <span className="text-base font-extrabold tracking-tight text-white">Akshvik Admin</span>
+              <span className="text-[10px] text-[#F46F20] font-bold uppercase tracking-wider">Boutique Portal</span>
+            </div>
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
@@ -929,7 +936,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "dashboard" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "dashboard" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <LayoutDashboard className="h-5 w-5" /> Dashboard
@@ -938,7 +945,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("products"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "products" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "products" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <Package className="h-5 w-5" /> Products ({products.length})
@@ -947,7 +954,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("orders"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "orders" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "orders" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <ShoppingBag className="h-5 w-5" /> Orders ({orders.length})
@@ -955,7 +962,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("categories"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "categories" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "categories" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <FolderTree className="h-5 w-5" /> Categories ({categoriesList.length})
@@ -964,7 +971,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("customers"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "customers" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "customers" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <Users className="h-5 w-5" /> Customers ({customersList.length})
@@ -973,7 +980,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("coupons"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "coupons" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "coupons" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <Tag className="h-5 w-5" /> Coupons ({getCoupons().length})
@@ -982,7 +989,7 @@ export default function AdminPage() {
           <button
             onClick={() => { setActiveTab("banners"); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
-              activeTab === "banners" ? "bg-indigo-600 text-white" : "hover:bg-slate-800 hover:text-slate-100"
+              activeTab === "banners" ? "bg-[#F46F20] text-white" : "hover:bg-slate-800 hover:text-slate-100"
             }`}
           >
             <Image className="h-5 w-5" /> Banners ({getBanners().length})
@@ -1018,7 +1025,7 @@ export default function AdminPage() {
             <span className="hidden lg:inline text-slate-500">Server Status: <strong className="text-emerald-500 font-semibold">Online</strong></span>
             <button
               onClick={() => setIsChangePasswordOpen(true)}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-[#F46F20] hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
             >
               <Key className="h-4 w-4" /> <span className="hidden sm:inline">Change Password</span>
             </button>
@@ -1044,7 +1051,7 @@ export default function AdminPage() {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                   <div>
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Paid Revenue</span>
-                    <h3 className="text-2xl font-bold text-slate-800 mt-2">₹{totalRevenue.toFixed(1)}</h3>
+                    <h3 className="text-2xl font-bold text-slate-800 mt-2">₹{totalRevenue.toLocaleString("en-IN")}</h3>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                     <TrendingUp className="h-6 w-6" />
@@ -1057,7 +1064,7 @@ export default function AdminPage() {
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Orders</span>
                     <h3 className="text-2xl font-bold text-slate-800 mt-2">{orders.length}</h3>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-[#FFEFE8] text-[#F46F20] flex items-center justify-center">
                     <ShoppingBag className="h-6 w-6" />
                   </div>
                 </div>
@@ -1186,7 +1193,7 @@ export default function AdminPage() {
                 <h3 className="text-base font-semibold text-slate-600">Product List ({products.length})</h3>
                 <button
                   onClick={() => { resetForm(); setIsAddModalOpen(true); }}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+                  className="bg-[#F46F20] hover:bg-[#E05E12] text-white font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center gap-1.5 transition shadow-xs cursor-pointer"
                 >
                   <Plus className="h-4 w-4" /> Add Product
                 </button>
@@ -1236,7 +1243,7 @@ export default function AdminPage() {
                             <div className="flex items-center justify-end gap-2">
                               <button 
                                 onClick={() => openEditModal(p)}
-                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" 
+                                className="p-2 text-[#F46F20] hover:bg-[#FFEFE8] rounded-lg transition" 
                                 title="Edit"
                               >
                                 <Edit className="h-4.5 w-4.5" />
@@ -1334,14 +1341,14 @@ export default function AdminPage() {
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handlePrintInvoice(o)}
-                                  className="flex items-center gap-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all"
+                                  className="flex items-center gap-1 bg-slate-100 hover:bg-[#FFEFE8] hover:text-[#F46F20] text-slate-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all"
                                   title="Print Invoice"
                                 >
                                   <Printer className="h-3.5 w-3.5" /> Invoice
                                 </button>
                                 <button
                                   onClick={() => handlePrintLabel(o)}
-                                  className="flex items-center gap-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all"
+                                  className="flex items-center gap-1 bg-slate-100 hover:bg-[#FFEFE8] hover:text-[#F46F20] text-slate-600 text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all"
                                   title="Print Shipping Label"
                                 >
                                   <Printer className="h-3.5 w-3.5" /> Label
@@ -1352,7 +1359,7 @@ export default function AdminPage() {
                               <select
                                 value={o.orderStatus}
                                 onChange={(e) => updateOrderStatus(o.id, e.target.value as Order["orderStatus"])}
-                                className="bg-slate-100 border-0 rounded-lg text-xs font-semibold py-1.5 pl-3 pr-8 focus:ring-2 focus:ring-indigo-500/20"
+                                className="bg-slate-100 border-0 rounded-lg text-xs font-semibold py-1.5 pl-3 pr-8 focus:ring-2 focus:ring-[#F46F20]/20/20"
                               >
                                 <option value="Pending">Pending</option>
                                 <option value="Packed">Packed</option>
@@ -1401,7 +1408,7 @@ export default function AdminPage() {
                   />
                   <button
                     type="submit"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                    className="bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold px-6 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" /> Add Category
                   </button>
@@ -1463,7 +1470,7 @@ export default function AdminPage() {
                                       setEditingCategoryIndex(idx);
                                       setEditingCategoryValue(cat);
                                     }}
-                                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                                    className="p-2 text-[#F46F20] hover:bg-[#FFEFE8] rounded-lg transition"
                                     title="Edit"
                                   >
                                     <Edit className="h-4.5 w-4.5" />
@@ -1524,7 +1531,7 @@ export default function AdminPage() {
                           <td className="py-4 px-6 font-bold text-slate-700">
                             {customer.orderCount} Orders
                           </td>
-                          <td className="py-4 px-6 text-right font-bold text-indigo-600">
+                          <td className="py-4 px-6 text-right font-bold text-[#F46F20]">
                             ₹{customer.totalSpent.toFixed(1)}
                           </td>
                         </tr>
@@ -1609,7 +1616,7 @@ export default function AdminPage() {
                     </div>
                     <button
                       type="submit"
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-6 rounded-xl transition flex items-center justify-center cursor-pointer text-sm"
+                      className="bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold h-11 px-6 rounded-xl transition flex items-center justify-center cursor-pointer text-sm"
                     >
                       Create
                     </button>
@@ -1685,7 +1692,7 @@ export default function AdminPage() {
               {/* Lucky Winner Banner Settings */}
               <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-xs space-y-4">
                 <h4 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 flex items-center gap-2 font-serif text-indigo-905">
-                  <Megaphone className="h-5 w-5 text-indigo-600" /> &quot;Lucky Winner&quot; Weekly Announcement
+                  <Megaphone className="h-5 w-5 text-[#F46F20]" /> &quot;Lucky Winner&quot; Weekly Announcement
                 </h4>
                 <form 
                   onSubmit={(e) => {
@@ -1704,12 +1711,12 @@ export default function AdminPage() {
                       name="winner" 
                       defaultValue={luckyWinner}
                       placeholder="Pooja Sharma — Lucky Winner of the Week!"
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-8 rounded-xl transition cursor-pointer text-sm shadow-md shadow-indigo-50"
+                    className="w-full sm:w-auto bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold h-11 px-8 rounded-xl transition cursor-pointer text-sm shadow-md shadow-indigo-50"
                   >
                     Save Campaign
                   </button>
@@ -1728,7 +1735,7 @@ export default function AdminPage() {
                     <div key={banner.id} className="border border-slate-200/60 rounded-3xl p-6 bg-slate-50/50 hover:border-slate-300 transition-all duration-200">
                       <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100/50">
+                          <span className="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest bg-[#FFEFE8] px-2.5 py-1 rounded-lg border border-indigo-100/50">
                             {banner.type.replace("_", " ")} Banner
                           </span>
                           <span className="text-[10px] text-slate-400 font-mono">ID: {banner.id}</span>
@@ -1788,7 +1795,7 @@ export default function AdminPage() {
                                     defaultValue={banner.image}
                                     onChange={(e) => updateBanner(banner.id, { image: e.target.value })}
                                     placeholder="https://live-url.com/image.jpg"
-                                    className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-100 rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-800 transition outline-none"
+                                    className="w-full bg-white border border-slate-200 focus:border-[#F46F20] focus:ring-1 focus:ring-[#F46F20]/15 rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-800 transition outline-none"
                                   />
                                 </div>
                               </div>
@@ -1799,7 +1806,7 @@ export default function AdminPage() {
                                 <select
                                   value={banner.imageFit || "cover"}
                                   onChange={(e) => updateBanner(banner.id, { imageFit: e.target.value })}
-                                  className="w-full bg-white border border-slate-200 focus:border-indigo-600 rounded-lg p-1 text-[11px] font-semibold text-slate-700 outline-none cursor-pointer"
+                                  className="w-full bg-white border border-slate-200 focus:border-[#F46F20] rounded-lg p-1 text-[11px] font-semibold text-slate-700 outline-none cursor-pointer"
                                 >
                                   <option value="cover">Fill Container (Cover)</option>
                                   <option value="contain">Fit Entire Image (Contain)</option>
@@ -1817,7 +1824,7 @@ export default function AdminPage() {
                               type="text" 
                               defaultValue={banner.name}
                               onChange={(e) => updateBanner(banner.id, { name: e.target.value })}
-                              className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                              className="w-full bg-white border border-slate-200 focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                             />
                           </div>
 
@@ -1827,7 +1834,7 @@ export default function AdminPage() {
                               type="text" 
                               defaultValue={banner.linkUrl}
                               onChange={(e) => updateBanner(banner.id, { linkUrl: e.target.value })}
-                              className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                              className="w-full bg-white border border-slate-200 focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                             />
                           </div>
 
@@ -1838,7 +1845,7 @@ export default function AdminPage() {
                                 type="text" 
                                 defaultValue={banner.text}
                                 onChange={(e) => updateBanner(banner.id, { text: e.target.value })}
-                                className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
+                                className="w-full bg-white border border-slate-200 focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none"
                               />
                             </div>
                           )}
@@ -1851,7 +1858,7 @@ export default function AdminPage() {
                                 defaultValue={banner.endTime || ""}
                                 onChange={(e) => updateBanner(banner.id, { endTime: e.target.value })}
                                 placeholder="e.g. 2026-12-31T23:59:59.000Z"
-                                className="w-full bg-white border border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none font-mono"
+                                className="w-full bg-white border border-slate-200 focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 transition-all outline-none font-mono"
                               />
                             </div>
                           )}
@@ -1874,7 +1881,7 @@ export default function AdminPage() {
             className="bg-[#f8f9fc] rounded-[16px] max-w-[860px] w-full max-h-[90vh] shadow-2xl border border-[#e2e8f0] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
           >
             {/* Premium Dark Header */}
-            <div className="bg-[#1e1b4b] text-white p-6 border-l-4 border-[#6366f1] flex items-center justify-between flex-shrink-0 relative shadow-sm">
+            <div className="bg-[#1A2514] text-white p-6 border-l-4 border-[#F46F20] flex items-center justify-between flex-shrink-0 relative shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="bg-white/10 text-white p-2 rounded-[8px] border border-white/15">
                   <Plus className="h-5 w-5" />
@@ -1906,7 +1913,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
                       <div className="space-y-4">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Product Name</label>
@@ -1917,7 +1924,7 @@ export default function AdminPage() {
                             value={productForm.name} 
                             onChange={handleFormChange}
                             placeholder="e.g. Muslin Button Jabla Pack of 2"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -1930,7 +1937,7 @@ export default function AdminPage() {
                               value={productForm.sku} 
                               onChange={handleFormChange}
                               placeholder="e.g. MS-JAB-02"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                           <div>
@@ -1939,7 +1946,7 @@ export default function AdminPage() {
                               name="category" 
                               value={productForm.category}
                               onChange={handleFormChange}
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
                             >
                               {categoriesList.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
@@ -1954,7 +1961,7 @@ export default function AdminPage() {
                               name="ageGroup" 
                               value={productForm.ageGroup}
                               onChange={handleFormChange}
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
                             >
                               <option value="0-3 Months">0-3 Months</option>
                               <option value="3-6 Months">3-6 Months</option>
@@ -1974,7 +1981,7 @@ export default function AdminPage() {
                               value={productForm.stockQuantity} 
                               onChange={handleFormChange}
                               placeholder="e.g. 10"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                         </div>
@@ -1986,7 +1993,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Original (₹)</label>
@@ -1996,7 +2003,7 @@ export default function AdminPage() {
                             value={productForm.originalPrice} 
                             onChange={handleFormChange}
                             placeholder="0"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2008,7 +2015,7 @@ export default function AdminPage() {
                             value={productForm.price} 
                             onChange={handleFormChange}
                             placeholder="0"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2019,7 +2026,7 @@ export default function AdminPage() {
                             value={productForm.offerPrice} 
                             onChange={handleFormChange}
                             placeholder="Optional"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2033,7 +2040,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
                       <div className="space-y-4">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Brand</label>
@@ -2043,7 +2050,7 @@ export default function AdminPage() {
                             value={productForm.brand} 
                             onChange={handleFormChange}
                             placeholder="Akshvik"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2054,7 +2061,7 @@ export default function AdminPage() {
                             value={productForm.fabric} 
                             onChange={handleFormChange}
                             placeholder="100% Organic Cotton"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2065,7 +2072,7 @@ export default function AdminPage() {
                             value={productForm.videoUrl} 
                             onChange={handleFormChange}
                             placeholder="e.g. YouTube / drive link"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2076,7 +2083,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
                       <div className="space-y-4">
                         <PrimaryImageUploader
                           value={productForm.image}
@@ -2097,7 +2104,7 @@ export default function AdminPage() {
                               value={productForm.sizes} 
                               onChange={handleFormChange}
                               placeholder="0-3M, 3-6M"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                           <div>
@@ -2108,7 +2115,7 @@ export default function AdminPage() {
                               value={productForm.colors} 
                               onChange={handleFormChange}
                               placeholder="Red, Blue"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                         </div>
@@ -2122,7 +2129,7 @@ export default function AdminPage() {
                   className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                   style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                 >
-                  <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
+                  <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
                   <div>
                     <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Full details & features</label>
                     <textarea 
@@ -2132,7 +2139,7 @@ export default function AdminPage() {
                       value={productForm.description} 
                       onChange={handleFormChange}
                       placeholder="Tell us about the fabric feel, structure, and design..."
-                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
+                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
                     />
                   </div>
                 </div>
@@ -2149,9 +2156,9 @@ export default function AdminPage() {
                       id="add-isLiveSale"
                       checked={productForm.isLiveSale} 
                       onChange={handleFormChange}
-                      className="accent-[#6366f1] h-5 w-5 cursor-pointer rounded border-slate-300"
+                      className="accent-[#F46F20] h-5 w-5 cursor-pointer rounded border-slate-300"
                     />
-                    <label htmlFor="add-isLiveSale" className="text-[#1e1b4b] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
+                    <label htmlFor="add-isLiveSale" className="text-[#1A2514] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
                   </div>
                   <button
                     type="button"
@@ -2163,7 +2170,7 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full h-[52px] bg-[#6366f1] hover:bg-[#5053e6] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-indigo-100/30 flex items-center justify-center gap-2"
+                  className="w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2"
                 >
                   <Check className="h-5 w-5" /> Save Product
                 </button>
@@ -2180,7 +2187,7 @@ export default function AdminPage() {
             className="bg-[#f8f9fc] rounded-[16px] max-w-[860px] w-full max-h-[90vh] shadow-2xl border border-[#e2e8f0] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
           >
             {/* Premium Dark Header */}
-            <div className="bg-[#1e1b4b] text-white p-6 border-l-4 border-[#6366f1] flex items-center justify-between flex-shrink-0 relative shadow-sm">
+            <div className="bg-[#1A2514] text-white p-6 border-l-4 border-[#F46F20] flex items-center justify-between flex-shrink-0 relative shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="bg-white/10 text-white p-2 rounded-[8px] border border-white/15">
                   <Edit className="h-5 w-5" />
@@ -2212,7 +2219,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Basic Information</h4>
                       <div className="space-y-4">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Product Name</label>
@@ -2223,7 +2230,7 @@ export default function AdminPage() {
                             value={productForm.name} 
                             onChange={handleFormChange}
                             placeholder="e.g. Muslin Button Jabla"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -2236,7 +2243,7 @@ export default function AdminPage() {
                               value={productForm.sku} 
                               onChange={handleFormChange}
                               placeholder="e.g. MS-JAB-02"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                           <div>
@@ -2245,7 +2252,7 @@ export default function AdminPage() {
                               name="category" 
                               value={productForm.category}
                               onChange={handleFormChange}
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
                             >
                               {categoriesList.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
@@ -2260,7 +2267,7 @@ export default function AdminPage() {
                               name="ageGroup" 
                               value={productForm.ageGroup}
                               onChange={handleFormChange}
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none cursor-pointer"
                             >
                               <option value="0-3 Months">0-3 Months</option>
                               <option value="3-6 Months">3-6 Months</option>
@@ -2280,7 +2287,7 @@ export default function AdminPage() {
                               value={productForm.stockQuantity} 
                               onChange={handleFormChange}
                               placeholder="e.g. 10"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                         </div>
@@ -2292,7 +2299,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Pricing Details</h4>
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Original (₹)</label>
@@ -2302,7 +2309,7 @@ export default function AdminPage() {
                             value={productForm.originalPrice} 
                             onChange={handleFormChange}
                             placeholder="0"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2314,7 +2321,7 @@ export default function AdminPage() {
                             value={productForm.price} 
                             onChange={handleFormChange}
                             placeholder="0"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2325,7 +2332,7 @@ export default function AdminPage() {
                             value={productForm.offerPrice} 
                             onChange={handleFormChange}
                             placeholder="Optional"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2339,7 +2346,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Specifications</h4>
                       <div className="space-y-4">
                         <div>
                           <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Brand</label>
@@ -2349,7 +2356,7 @@ export default function AdminPage() {
                             value={productForm.brand} 
                             onChange={handleFormChange}
                             placeholder="Akshvik"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2360,7 +2367,7 @@ export default function AdminPage() {
                             value={productForm.fabric} 
                             onChange={handleFormChange}
                             placeholder="100% Organic Cotton"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
@@ -2371,7 +2378,7 @@ export default function AdminPage() {
                             value={productForm.videoUrl} 
                             onChange={handleFormChange}
                             placeholder="e.g. YouTube / drive link"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2382,7 +2389,7 @@ export default function AdminPage() {
                       className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                       style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                     >
-                      <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
+                      <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-4">Media & Variations</h4>
                       <div className="space-y-4">
                         <PrimaryImageUploader
                           value={productForm.image}
@@ -2403,7 +2410,7 @@ export default function AdminPage() {
                               value={productForm.sizes} 
                               onChange={handleFormChange}
                               placeholder="0-3M, 3-6M"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                           <div>
@@ -2414,7 +2421,7 @@ export default function AdminPage() {
                               value={productForm.colors} 
                               onChange={handleFormChange}
                               placeholder="Red, Blue"
-                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                              className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                             />
                           </div>
                         </div>
@@ -2428,7 +2435,7 @@ export default function AdminPage() {
                   className="bg-white border border-[#e2e8f0] rounded-[12px] p-6 space-y-4"
                   style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
                 >
-                  <h4 className="text-[16px] font-semibold text-[#1e1b4b] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
+                  <h4 className="text-[16px] font-semibold text-[#1A2514] border-b border-slate-100 pb-2 mb-2">Product Description</h4>
                   <div>
                     <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Full details & features</label>
                     <textarea 
@@ -2438,7 +2445,7 @@ export default function AdminPage() {
                       value={productForm.description} 
                       onChange={handleFormChange}
                       placeholder="Tell us about the fabric feel, structure, and design..."
-                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#6366f1] focus:ring-2 focus:ring-indigo-100/50 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
+                      className="w-full bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] p-4 text-[14px] text-[#1e293b] font-medium transition-all outline-none resize-none"
                     />
                   </div>
                 </div>
@@ -2455,9 +2462,9 @@ export default function AdminPage() {
                       id="edit-isLiveSale"
                       checked={productForm.isLiveSale} 
                       onChange={handleFormChange}
-                      className="accent-[#6366f1] h-5 w-5 cursor-pointer rounded border-slate-300"
+                      className="accent-[#F46F20] h-5 w-5 cursor-pointer rounded border-slate-300"
                     />
-                    <label htmlFor="edit-isLiveSale" className="text-[#1e1b4b] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
+                    <label htmlFor="edit-isLiveSale" className="text-[#1A2514] font-bold cursor-pointer text-xs uppercase tracking-wider">Tag as &quot;Live Sale&quot; Product</label>
                   </div>
                   <button
                     type="button"
@@ -2469,7 +2476,7 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full h-[52px] bg-[#6366f1] hover:bg-[#5053e6] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-indigo-100/30 flex items-center justify-center gap-2"
+                  className="w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2"
                 >
                   <Check className="h-5 w-5" /> Save Changes
                 </button>
@@ -2494,7 +2501,7 @@ export default function AdminPage() {
               <X className="h-5 w-5" />
             </button>
             <h3 className="text-xl font-bold text-slate-800 font-serif mb-6 flex items-center gap-2">
-              <Key className="text-indigo-600 h-5 w-5" /> Change Password
+              <Key className="text-[#F46F20] h-5 w-5" /> Change Password
             </h3>
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div>
@@ -2534,7 +2541,7 @@ export default function AdminPage() {
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer mt-2"
+                className="w-full bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold py-3 rounded-xl transition text-sm cursor-pointer mt-2"
               >
                 Update Password
               </button>

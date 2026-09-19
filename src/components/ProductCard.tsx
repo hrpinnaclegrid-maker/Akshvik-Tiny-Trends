@@ -76,7 +76,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isInstagramSt
               className="p-2 rounded-full backdrop-blur-md transition-all cursor-pointer"
               style={
                 wishlisted
-                  ? { backgroundColor: "#E4611D", color: "#FFFFFF", transform: "scale(1.05)" }
+                  ? { backgroundColor: "#F46F20", color: "#FFFFFF", transform: "scale(1.05)" }
                   : { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
               }
               aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -144,7 +144,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, isInstagramSt
           className="absolute top-3 right-3 p-2 rounded-full shadow-2xs backdrop-blur-md transition-all z-10 cursor-pointer text-brand-green-dark hover:text-brand-orange hover:bg-brand-peach-pale"
           style={
             wishlisted
-              ? { backgroundColor: "#E4611D", color: "#FFFFFF", transform: "scale(1.05)" }
+              ? { backgroundColor: "#F46F20", color: "#FFFFFF", transform: "scale(1.05)" }
               : { backgroundColor: "rgba(255,255,255,0.85)" }
           }
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
