@@ -540,8 +540,8 @@ export default function ProductDetail({ params }: PageProps) {
                 <span className="font-quicksand">Free Ship Above ₹999</span>
               </div>
               <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-white rounded-2xl border border-brand-sage/20 shadow-2xs">
-                <RotateCcw className="h-5 w-5 text-brand-orange" />
-                <span className="font-quicksand">7 Days Returns</span>
+                <ShieldCheck className="h-5 w-5 text-brand-orange" />
+                <span className="font-quicksand">No Return Policy</span>
               </div>
               <div className="flex flex-col items-center gap-1.5 p-3 bg-brand-white rounded-2xl border border-brand-sage/20 shadow-2xs">
                 <ShieldCheck className="h-5 w-5 text-brand-orange" />
@@ -713,7 +713,9 @@ export default function ProductDetail({ params }: PageProps) {
               <>
                 <h3 className="font-bold text-base text-brand-olive font-serif">Shipping & Return Policy</h3>
                 <p><strong>Shipping:</strong> We process and ship orders within 24–48 hours. Delivery takes 3–5 business days across India. Free shipping applies on all orders totaling ₹999 or more. Standard shipping rate is ₹49.</p>
-                <p><strong>Returns:</strong> We offer a hassle-free 7-day return policy. Items must be unworn, unwashed, and in their original packaging with tags intact. Returns are simple via our online request center.</p>
+                <p><strong>COD Option:</strong> Cash on Delivery is available with advance parcel payment (₹99). The remaining balance is payable upon doorstep delivery.</p>
+                <p><strong>No Return Policy:</strong> In order to maintain strict baby hygiene and safety standards, all sales are final. We follow a strict <strong>No Return / No Exchange</strong> policy.</p>
+                <p><strong>Transit Damage / Replacement:</strong> If you receive a damaged, defective, or incorrect product, we will gladly arrange a replacement. A continuous, unedited 360-degree unboxing (parcel opening) video clearly showing the outer parcel label and condition upon delivery is mandatory and must be reported within 24 hours.</p>
               </>
             )}
           </div>

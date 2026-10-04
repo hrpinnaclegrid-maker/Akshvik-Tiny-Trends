@@ -439,10 +439,10 @@ const INITIAL_ORDERS: Order[] = [
 ];
 
 export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -454,19 +454,31 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     // 1. Fetch products from API
     fetch("/api/products")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
       .then((data) => {
-        if (Array.isArray(data)) {
-          setProducts(data.map((p: any) => ({ ...p, inStock: p.stockQuantity > 0 })));
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(
+            data.map((p: any) => ({
+              ...p,
+              id: p.id || p._id?.toString() || p.sku,
+              inStock: p.stockQuantity > 0
+            }))
+          );
         }
       })
       .catch((err) => console.error("Failed to fetch products:", err));
 
     // 2. Fetch orders from API
     fetch("/api/orders")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
       .then((data) => {
-        if (Array.isArray(data)) setOrders(data);
+        if (Array.isArray(data) && data.length > 0) setOrders(data);
       })
       .catch((err) => console.error("Failed to fetch orders:", err));
 

@@ -49,8 +49,18 @@ export default function TermsAndConditions() {
               <p>Akshvik Tiny Trends shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the purchase or use of any baby accessories, fabrics, or toys sold on this portal.</p>
             </section>
 
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-brand-green-dark">5. No Return &amp; Exchange Policy</h2>
+              <p>In adherence to strict child safety and hygiene regulations, all products are sold on an all-sales-final basis with no return or exchange option. Replacements are exclusively considered for transit-damaged or wrongly shipped merchandise when accompanied by an unedited 360-degree unboxing video submitted within 24 hours of delivery.</p>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-brand-green-dark">6. Cash on Delivery (COD) Terms</h2>
+              <p>Orders opted with Cash on Delivery require an advance parcel payment of ₹99 to cover third-party courier dispatch overheads. This parcel fee is non-refundable once the shipment is processed. The remainder of the order value is payable upon doorstep delivery.</p>
+            </section>
+
             <section className="space-y-2 border-t border-brand-sage/60 pt-6">
-              <p className="text-xs text-brand-text-muted">For clarification of any of the rules listed above, please contact our administrative team at legal@akshviktinytrends.com.</p>
+              <p className="text-xs text-brand-text-muted">For clarification of any of the rules listed above, please contact our administrative team at legal@akshviktinytrends.com or WhatsApp us at +91 74836 29590.</p>
             </section>
           </div>
         </div>

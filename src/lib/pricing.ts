@@ -144,8 +144,9 @@ export async function calculateOrderPricing(
   let balanceAmount = 0;
 
   if (paymentMethod === "COD") {
-    // ₹250 mandatory advance confirmation fee to prevent fake COD orders
-    chargeAmount = Math.min(total, 250);
+    // ₹99 advance parcel payment fee required to confirm COD orders
+    const COD_PARCEL_ADVANCE = 99;
+    chargeAmount = Math.min(total, COD_PARCEL_ADVANCE);
     balanceAmount = Math.max(0, total - chargeAmount);
   }
 

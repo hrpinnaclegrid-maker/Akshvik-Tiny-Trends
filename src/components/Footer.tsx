@@ -55,9 +55,11 @@ export const Footer: React.FC = () => {
             <div className="flex space-x-3 pt-1">
               {/* Facebook */}
               <a
-                href="#"
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
-                style={{ backgroundColor: "#3A5B2C", color: "#D4E3CB" }}
+                href="https://www.facebook.com/share/1JGwGbibtT/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110 hover:brightness-110"
+                style={{ backgroundColor: "#1877F2", color: "#FFFFFF" }}
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -210,7 +212,7 @@ export const Footer: React.FC = () => {
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold" style={{ color: "#4D7A3C" }}>
               <Link href="/privacy-policy" className="hover:text-orange-400 transition-colors">Privacy Policy</Link>
               <Link href="/shipping-policy" className="hover:text-orange-400 transition-colors">Shipping Policy</Link>
-              <Link href="/return-refund-policy" className="hover:text-orange-400 transition-colors">Returns</Link>
+              <Link href="/return-refund-policy" className="hover:text-orange-400 transition-colors">Return Policy</Link>
               <Link href="/terms-and-conditions" className="hover:text-orange-400 transition-colors">Terms</Link>
             </div>
           </div>
@@ -249,7 +251,7 @@ export const Footer: React.FC = () => {
           </p>
 
           <div className="flex gap-4 text-[11px] opacity-75">
-            <span>Cash on Delivery</span>
+            <span>COD (Parcel Payment)</span>
             <span>Razorpay Secured</span>
           </div>
         </div>

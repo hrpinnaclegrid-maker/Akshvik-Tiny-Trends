@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -109,10 +109,10 @@ export default function Home() {
   // 4. Instagram Grid Toggle for New Arrivals
   const [isInstagramLayout, setIsInstagramLayout] = useState(false);
 
-  // 5. New Arrivals Pagination
+  // 5. New Arrivals (Displays all boutique products)
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-  const newArrivals = allProducts.filter(p => p.category === "Premium Cotton" || p.category === "New Arrivals" || p.id === "p1");
+  const itemsPerPage = 12;
+  const newArrivals = allProducts;
   const totalPages = Math.ceil(newArrivals.length / itemsPerPage);
   const paginatedNewArrivals = newArrivals.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -144,75 +144,83 @@ export default function Home() {
   const muslinProducts = allProducts.filter(p => p.category === "Muslin Collection");
   const woodenToysProducts = allProducts.filter(p => p.category === "Wooden Toys");
 
-  // Viral Instagram Reels Showcase
-  const [playingReelId, setPlayingReelId] = useState<string | null>("reel-2");
-  const [isReelMuted, setIsReelMuted] = useState(true);
+  // Viral Instagram Reels Showcase (4 Videos from public/videos)
+  const [playingStates, setPlayingStates] = useState<Record<string, boolean>>({
+    "reel-1": true,
+    "reel-2": true,
+    "reel-3": true,
+    "reel-4": true
+  });
+  const [mutedStates, setMutedStates] = useState<Record<string, boolean>>({
+    "reel-1": true,
+    "reel-2": true,
+    "reel-3": true,
+    "reel-4": true
+  });
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
+  const togglePlayReel = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const vid = videoRefs.current[id];
+    if (!vid) return;
+    if (vid.paused) {
+      vid.play().catch(() => {});
+      setPlayingStates(prev => ({ ...prev, [id]: true }));
+    } else {
+      vid.pause();
+      setPlayingStates(prev => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const toggleMuteReel = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const vid = videoRefs.current[id];
+    if (!vid) return;
+    const nextMuted = !vid.muted;
+    vid.muted = nextMuted;
+    setMutedStates(prev => ({ ...prev, [id]: nextMuted }));
+  };
 
   const viralReels = [
     {
       id: "reel-1",
       title: "Muslin Sunshine Frock ☀️",
-      views: "185K",
-      likes: "7.4K",
-      productId: "p1",
-      productName: "Pure Muslin Baby Girl Sunshine Frock",
-      price: 299,
+      productId: "p6",
+      productName: "Muslin Front Open Frill Baby Frock",
       poster: "/WebsiteImages/YellowfrockRetro.webp",
-      videoSrc: null,
+      videoSrc: "/videos/Reel1.mp4",
       caption: "100% breathable organic muslin fabric. Extremely gentle on newborn skin!",
       tag: "Trending #1"
     },
     {
       id: "reel-2",
       title: "Cotton Footed Romper 👶",
-      views: "142K",
-      likes: "5.8K",
       productId: "p3",
       productName: "Baby Cotton Full Sleeve Jumpsuit Romper",
-      price: 249,
       poster: "/WebsiteImages/Jumpauit.webp",
-      videoSrc: "/videos/sample-reel.mp4",
+      videoSrc: "/videos/reel2.mp4",
       caption: "Full sleeve cosy footed rompers with easy diaper snap buttons. Perfect sleepwear!",
       tag: "Viral on Reels"
     },
     {
       id: "reel-3",
-      title: "Neem Wood Teether Set 🪵",
-      views: "98K",
-      likes: "4.1K",
-      productId: "p6",
-      productName: "Natural Neem Wood Rattle & Teether Set",
-      price: 349,
-      poster: "/WebsiteImages/wooden-toys.jpg",
-      videoSrc: null,
-      caption: "Anti-bacterial handcrafted neem wood toys. Smooth edges & chemical-free.",
-      tag: "Pediatrician Loved"
+      title: "Summer Play Set 🧸",
+      productId: "p2",
+      productName: "Kids Cotton Summer Co-ord Set",
+      poster: "/WebsiteImages/shirt & pant.webp",
+      videoSrc: "/videos/reel3.mp4",
+      caption: "Pure combed cotton slub fabric for all-day running and playing comfort.",
+      tag: "Bestseller"
     },
     {
       id: "reel-4",
-      title: "Tiered Birthday Party Frock 💖",
-      views: "210K",
-      likes: "8.9K",
+      title: "Tiered Party Frock 💖",
       productId: "p5",
       productName: "Baby Girl Premium Tiered Party Frock",
-      price: 499,
       poster: "/WebsiteImages/GraceC1473L.webp",
-      videoSrc: null,
+      videoSrc: "/videos/reel4.mp4",
       caption: "Elegant party wear with ultra-soft inner lining so your little one stays comfortable!",
-      tag: "Most Viewed"
-    },
-    {
-      id: "reel-5",
-      title: "Cotton Daily Play Set 🧸",
-      views: "125K",
-      likes: "6.3K",
-      productId: "p2",
-      productName: "Infant Pure Cotton Casual Play Set",
-      price: 279,
-      poster: "/WebsiteImages/dailywear.webp",
-      videoSrc: null,
-      caption: "Pure combed cotton slub fabric for all-day running and playing comfort.",
-      tag: "Bestseller"
+      tag: "Most Loved"
     }
   ];
 
@@ -323,14 +331,14 @@ export default function Home() {
                   <CreditCard className="h-5 w-5" />
                 </div>
                 <span className="text-xs font-bold text-brand-green-dark">COD Available</span>
-                <span className="text-[10px] text-brand-text-muted">Cash on Delivery option</span>
+                <span className="text-[10px] text-brand-text-muted">Parcel payment advance</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div className="w-10 h-10 rounded-full bg-brand-peach flex items-center justify-center text-brand-orange">
-                  <RotateCcw className="h-5 w-5" />
+                  <CheckCircle2 className="h-5 w-5" />
                 </div>
-                <span className="text-xs font-bold text-brand-green-dark">Easy 7-Day Returns</span>
-                <span className="text-[10px] text-brand-text-muted">Stress-free return policy</span>
+                <span className="text-xs font-bold text-brand-green-dark">No Return Policy</span>
+                <span className="text-[10px] text-brand-text-muted">100% Fresh • All Sales Final</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div className="w-10 h-10 rounded-full bg-brand-peach flex items-center justify-center text-brand-orange">
@@ -347,7 +355,7 @@ export default function Home() {
         <section className="bg-brand-cream py-16 border-b border-brand-sage/20 font-quicksand">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-xl mx-auto mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-brand-green-dark">Shop by Age Range 🍼</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-brand-green-dark">Shop by Age Range</h2>
               <p className="text-sm text-brand-text-muted mt-2">Find the perfect fitting outfit for your growing little one.</p>
             </div>
             
@@ -719,8 +727,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= 11. SHOP THE GRAM • VIRAL REELS SHOWCASE (HIDDEN FOR NOW) ================= */}
-        {false && (
+        {/* ================= 11. SHOP THE GRAM • VIRAL REELS SHOWCASE ================= */}
         <section className="bg-stone-900 text-white py-16 md:py-20 font-quicksand relative overflow-hidden">
           {/* Subtle background glow accents */}
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-[#E1306C]/20 to-[#F77737]/10 rounded-full blur-3xl pointer-events-none" />
@@ -740,25 +747,43 @@ export default function Home() {
                   Trending Viral Reels
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-300 mt-2 max-w-xl font-sans">
-                  Watch our top-viewed Instagram reels to see the real fabric drape, fit, and smiles on little cuties. Tap any product to shop it directly!
+                  Watch our reels in action to see the real fabric drape, fit, and smiles on little cuties. Tap any video or click to watch directly on Instagram!
                 </p>
               </div>
 
-              <a
-                href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-95 text-white font-bold px-5 py-3 rounded-full text-xs shadow-lg transition-all hover:scale-105 w-fit"
-              >
-                <span>Follow on Instagram</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="https://www.facebook.com/share/1JGwGbibtT/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold px-4 py-2.5 rounded-full text-xs shadow-lg transition-all hover:scale-105"
+                  title="Follow Akshvik Tiny Trends on Facebook"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M9 8H7v3h2v9h4v-9h3.6l.4-3h-4V6.5c0-.8.2-1.1 1-1.1h3V1h-4.4C10.7 1 9 2.7 9 5.8V8z" />
+                  </svg>
+                  <span>Follow on Facebook</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+
+                <a
+                  href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-95 text-white font-bold px-5 py-2.5 rounded-full text-xs shadow-lg transition-all hover:scale-105"
+                  title="Follow Akshvik Tiny Trends on Instagram"
+                >
+                  <span>Follow on Instagram</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
             </div>
 
-            {/* Reels Carousel / Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+            {/* Reels 4-Column Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
               {viralReels.map((reel) => {
-                const isPlaying = playingReelId === reel.id;
+                const isPlaying = playingStates[reel.id] ?? true;
+                const isMuted = mutedStates[reel.id] ?? true;
                 const matchedProduct = allProducts.find(p => p.id === reel.productId);
 
                 return (
@@ -766,58 +791,90 @@ export default function Home() {
                     key={reel.id}
                     className="group relative rounded-3xl overflow-hidden bg-stone-800 border border-stone-700/80 shadow-xl flex flex-col justify-between aspect-[9/16] transition-all duration-300 hover:border-[#DD2A7B]/80 hover:shadow-2xl hover:shadow-[#DD2A7B]/10 hover:-translate-y-1.5"
                   >
-                    {/* Media Layer (Video or Poster) */}
-                    <div className="absolute inset-0 z-0 bg-stone-900">
-                      {reel.videoSrc ? (
-                        <video
-                          src={reel.videoSrc}
-                          poster={reel.poster}
-                          autoPlay
-                          loop
-                          muted={isReelMuted}
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={reel.poster}
-                          alt={reel.title}
-                          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/60 pointer-events-none" />
+                    {/* Media Layer (Video) */}
+                    <div className="absolute inset-0 z-0 bg-stone-900 cursor-pointer" onClick={() => togglePlayReel(reel.id)}>
+                      <video
+                        ref={(el) => {
+                          videoRefs.current[reel.id] = el;
+                        }}
+                        src={reel.videoSrc}
+                        poster={reel.poster}
+                        autoPlay
+                        loop
+                        muted={isMuted}
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60 pointer-events-none" />
                     </div>
 
-                    {/* Top Overlay (Badge, Views, Mute/Play Controls) */}
+                    {/* Top Overlay (Tag Badge, Mute/Play Controls & Instagram Link) */}
                     <div className="relative z-10 p-3.5 flex items-center justify-between">
-                      <span className="bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                        <span className="text-[#FF5252]">🔥</span> {reel.views}
+                      <span className="bg-[#DD2A7B]/90 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs">
+                        {reel.tag}
                       </span>
 
-                      {reel.videoSrc ? (
+                      <div className="flex items-center gap-1.5">
+                        {/* Audio Toggle */}
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsReelMuted(!isReelMuted);
-                          }}
-                          className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
-                          aria-label={isReelMuted ? "Unmute" : "Mute"}
+                          onClick={(e) => toggleMuteReel(reel.id, e)}
+                          className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
+                          aria-label={isMuted ? "Unmute" : "Mute"}
+                          title={isMuted ? "Unmute audio" : "Mute audio"}
                         >
-                          {isReelMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                          {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5 text-amber-400" />}
                         </button>
-                      ) : (
-                        <span className="bg-[#DD2A7B]/90 backdrop-blur-md text-white text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
-                          {reel.tag}
-                        </span>
-                      )}
+
+                        {/* Play/Pause Toggle */}
+                        <button
+                          onClick={(e) => togglePlayReel(reel.id, e)}
+                          className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer"
+                          aria-label={isPlaying ? "Pause" : "Play"}
+                          title={isPlaying ? "Pause" : "Play"}
+                        >
+                          {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
+                        </button>
+
+                        {/* Direct Instagram Top Pill */}
+                        <a
+                          href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 hover:brightness-110 transition-transform hover:scale-105"
+                          title="Click to see on Instagram"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                          </svg>
+                          <span>Instagram</span>
+                          <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
+                      </div>
                     </div>
 
-                    {/* Center Action Indicator */}
-                    <div className="relative z-10 flex-1 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl scale-90 group-hover:scale-100 transition-transform">
-                        <Play className="h-5 w-5 fill-white ml-0.5" />
-                      </div>
+                    {/* Center Action Indicator (Click to See on Instagram Overlay) */}
+                    <div className="relative z-10 flex-1 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 gap-3">
+                      <a
+                        href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:brightness-110 text-white font-bold text-xs px-4 py-2.5 rounded-full shadow-2xl transition-all transform hover:scale-105 cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        <span>See on Instagram</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      <button
+                        onClick={(e) => togglePlayReel(reel.id, e)}
+                        className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform cursor-pointer"
+                        title={isPlaying ? "Pause Video" : "Play Video"}
+                      >
+                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-white ml-0.5" />}
+                      </button>
                     </div>
 
                     {/* Bottom Tagged Product Card (Shop The Look) */}
@@ -826,7 +883,7 @@ export default function Home() {
                         {reel.caption}
                       </p>
 
-                      <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 shadow-lg border border-white/30 text-stone-900 transition-transform duration-200 group-hover:scale-[1.02]">
+                      <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2.5 shadow-lg border border-white/30 text-stone-900 transition-transform duration-200 group-hover:scale-[1.01]">
                         <div className="flex items-center gap-2 mb-2">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
@@ -835,21 +892,28 @@ export default function Home() {
                             className="w-10 h-10 rounded-xl object-cover border border-stone-200 flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-[11px] font-bold text-stone-900 truncate leading-snug">
+                            <Link
+                              href={`/shop/${reel.productId}`}
+                              className="text-[11px] font-bold text-stone-900 truncate leading-snug hover:text-brand-orange transition-colors block"
+                              title="View product details"
+                            >
                               {reel.productName}
-                            </h4>
+                            </Link>
                             <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-xs font-black text-brand-orange">
-                                ₹{reel.price}
-                              </span>
                               <span className="text-[9px] text-emerald-700 bg-emerald-50 font-bold px-1.5 py-0.2 rounded">
                                 In Stock
                               </span>
+                              <Link
+                                href={`/shop/${reel.productId}`}
+                                className="text-[9px] text-brand-orange font-bold hover:underline"
+                              >
+                                View Options →
+                              </Link>
                             </div>
                           </div>
                         </div>
 
-                        {/* Direct Add to Cart / Shop Button */}
+                        {/* Direct Add to Cart / Shop Button & See on Instagram Button */}
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={(e) => {
@@ -868,10 +932,14 @@ export default function Home() {
                             href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors flex items-center justify-center"
-                            title="Watch Reel on Instagram"
+                            className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:opacity-95 shadow-sm transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                            title="Click to see on Instagram"
                           >
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                            <span>Instagram</span>
+                            <ExternalLink className="h-3 w-3" />
                           </a>
                         </div>
                       </div>
@@ -882,26 +950,40 @@ export default function Home() {
               })}
             </div>
 
-            {/* Bottom Instagram Trust Strip */}
-            <div className="mt-8 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs text-stone-400">
+            {/* Bottom Social Trust Strip with Instagram & Facebook */}
+            <div className="mt-10 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs text-stone-400">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Follow <strong>@akshvik_tiny_trends</strong> on Instagram for new arrival drops &amp; daily story sale updates!</span>
+                <span>Follow <strong>@akshvik_tiny_trends</strong> on Instagram &amp; Facebook for daily story drops &amp; offers!</span>
               </div>
-              <a
-                href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-white hover:text-brand-orange transition-colors flex items-center gap-1"
-              >
-                <span>Open Instagram App</span>
-                <ChevronRight className="h-4 w-4" />
-              </a>
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://www.facebook.com/share/1JGwGbibtT/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[#1877F2] hover:underline transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M9 8H7v3h2v9h4v-9h3.6l.4-3h-4V6.5c0-.8.2-1.1 1-1.1h3V1h-4.4C10.7 1 9 2.7 9 5.8V8z" />
+                  </svg>
+                  <span>Visit Facebook</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+                <span className="opacity-40">•</span>
+                <a
+                  href="https://www.instagram.com/akshvik_tiny_trends?stkn=Z3RuNDV2MmcxcjZ2&utm_source=qr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-white hover:text-brand-orange transition-colors flex items-center gap-1"
+                >
+                  <span>Open Instagram App</span>
+                  <ChevronRight className="h-4 w-4" />
+                </a>
+              </div>
             </div>
 
           </div>
         </section>
-        )}
 
         {/* ================= 12. GOOGLE BUSINESS VERIFIED REVIEWS ================= */}
         <section className="bg-[#FEFCF8] py-16 md:py-20 border-b border-brand-sage/30 font-quicksand">

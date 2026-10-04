@@ -67,8 +67,18 @@ export default function ShippingPolicy() {
               <p>We charge a flat shipping rate of ₹49 for orders below ₹999. Shipping is completely free for orders totaling ₹999 or more.</p>
             </section>
 
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-brand-green-dark">4. Cash on Delivery (COD) with Parcel Payment</h2>
+              <p>For customers opting for Cash on Delivery, a nominal <strong>advance parcel payment of ₹99</strong> is required online during checkout to confirm dispatch and cover third-party courier handling fees. The remaining order balance is collected in cash by our logistics partner upon delivery at your doorstep.</p>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-brand-green-dark">5. No Return Policy &amp; Damaged Delivery Protocol</h2>
+              <p>To preserve newborn hygiene standards, all items operate under a strict <strong>No Return and No Exchange</strong> policy. In the event of receiving damaged or incorrect items, customers must report within 24 hours of delivery with a continuous, unedited 360-degree unboxing video.</p>
+            </section>
+
             <section className="space-y-2 border-t border-brand-sage/60 pt-6">
-              <p className="text-xs text-brand-text-muted">If you have any urgent shipping queries or need delivery customization, please write to our support team at support@akshviktinytrends.com.</p>
+              <p className="text-xs text-brand-text-muted">If you have any urgent shipping queries or need delivery customization, please write to our support team at support@akshviktinytrends.com or WhatsApp us at +91 74836 29590.</p>
             </section>
           </div>
         </div>

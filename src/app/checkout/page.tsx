@@ -139,7 +139,7 @@ export default function CheckoutPage() {
         amount: Math.round(initData.chargeAmount * 100),
         currency: "INR",
         name: "Akshvik Tiny Trends",
-        description: paymentMethod === "COD" ? "COD Order Confirmation Advance (₹250)" : "Complete Order Payment",
+        description: paymentMethod === "COD" ? "COD Order Confirmation Parcel Payment (₹99)" : "Complete Order Payment",
         image: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/logo.jpeg`,
         handler: async function (response: any) {
           try {
@@ -209,7 +209,7 @@ export default function CheckoutPage() {
               <div className="bg-brand-cream border border-brand-sage rounded-2xl p-5 text-left space-y-3 text-sm">
                 {([
                   ["Order ID", placedOrderDetails.orderId],
-                  ["Payment", placedOrderDetails.paymentMethod === "COD" ? "COD (₹250 Advance Paid)" : "Online (Full Paid)"],
+                  ["Payment", placedOrderDetails.paymentMethod === "COD" ? "COD (₹99 Parcel Payment Paid)" : "Online (Full Paid)"],
                   ["Delivery To", `${placedOrderDetails.address}, ${placedOrderDetails.city} - ${placedOrderDetails.pincode}`],
                 ] as [string, string][]).map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-4 border-b border-brand-sage/60 pb-2 last:border-0 last:pb-0">
@@ -420,10 +420,10 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 font-bold text-sm sm:text-base text-brand-green-dark mb-1.5">
                         <Truck className="h-4 w-4 text-brand-orange" />
-                        Cash on Delivery (COD)
+                        Cash on Delivery (COD) - Parcel Payment Only
                       </div>
                       <p className="text-xs text-stone-600 leading-relaxed font-medium">
-                        A <strong className="text-brand-orange font-bold">₹250 advance</strong> is required online via Razorpay to confirm shipment. The remaining balance is collected upon doorstep delivery.
+                        Pay only the <strong className="text-brand-orange font-bold">₹99 parcel delivery fee</strong> online now via Razorpay to confirm shipment. The remaining product balance is collected at your doorstep upon delivery.
                       </p>
                     </div>
                   </div>
@@ -478,8 +478,8 @@ export default function CheckoutPage() {
                     </div>
                     {paymentMethod === "COD" && (
                       <div className="mt-3 pt-2.5 border-t border-brand-sage/40 text-xs text-stone-700 font-medium flex justify-between">
-                        <span>Pay online now: <strong className="text-brand-orange font-bold">₹250</strong></span>
-                        <span>Due on delivery: <strong className="text-stone-900 font-bold">₹{(totalAmount - 250).toFixed(0)}</strong></span>
+                        <span>Pay parcel fee now: <strong className="text-brand-orange font-bold">₹{Math.min(totalAmount, 99).toFixed(0)}</strong></span>
+                        <span>Due on delivery: <strong className="text-stone-900 font-bold">₹{Math.max(0, totalAmount - 99).toFixed(0)}</strong></span>
                       </div>
                     )}
                   </div>
