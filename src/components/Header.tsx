@@ -67,10 +67,32 @@ export const Header: React.FC = () => {
     <>
 
 
+      {/* ── 1. Announcement Banner ── */}
+      {announcementBanner && announcementBanner.active && (
+        <div className="bg-brand-orange text-white text-center py-2 px-4 text-xs md:text-sm font-medium tracking-wide flex flex-col sm:flex-row items-center justify-center gap-2 relative z-50">
+          <span>
+            {announcementBanner.text || "🎉 Welcome to Akshvik Tiny Trends!"}
+            {luckyWinner && (
+              <strong className="ml-2 font-bold text-yellow-200">
+                🏆 Lucky Winner of the Week: {luckyWinner}!
+              </strong>
+            )}
+          </span>
+          {announcementBanner.linkUrl && (
+            <Link
+              href={announcementBanner.linkUrl}
+              className="bg-white text-brand-orange hover:bg-brand-peach-pale transition-colors px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider inline-block shadow-xs"
+            >
+              Shop Now
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* ── 2. Main Header ── */}
       <header className="bg-brand-cream border-b border-brand-sage sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 gap-2 sm:gap-4">
+          <div className="flex items-center justify-between h-20 sm:h-22 lg:h-24 gap-2 sm:gap-4">
 
             {/* Mobile Menu Toggle */}
             <button
@@ -82,15 +104,15 @@ export const Header: React.FC = () => {
             </button>
 
             {/* ── Brand Logo ── */}
-            <div className="flex-shrink-0">
-              <Link href="/" className="block select-none py-1 sm:py-2" aria-label="Akshvik Tiny Trends Home">
+            <div className="flex-shrink-0 flex items-center">
+              <Link href="/" className="block select-none py-1" aria-label="Akshvik Tiny Trends Home">
                 <Image
                   src="/logo.jpeg"
                   alt="Akshvik Tiny Trends Logo"
-                  width={240}
-                  height={80}
+                  width={340}
+                  height={110}
                   priority
-                  className="h-12 sm:h-16 lg:h-20 w-auto object-contain"
+                  className="h-16 sm:h-20 lg:h-24 w-auto max-w-[230px] sm:max-w-none object-contain scale-105 transform origin-left"
                 />
               </Link>
             </div>
@@ -208,9 +230,9 @@ export const Header: React.FC = () => {
               <Image
                 src="/logo.jpeg"
                 alt="Akshvik Tiny Trends"
-                width={130}
-                height={43}
-                className="h-10 w-auto object-contain"
+                width={180}
+                height={60}
+                className="h-14 w-auto object-contain"
               />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}

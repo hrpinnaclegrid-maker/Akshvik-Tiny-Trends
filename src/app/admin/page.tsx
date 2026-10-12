@@ -27,7 +27,9 @@ import {
   Upload,
   Move,
   CloudUpload,
-  Menu
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 const DragRepositionImage = ({
@@ -376,24 +378,47 @@ export default function AdminPage() {
         method: "POST",
         body: formData,
       });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Upload failed");
       updateBanner(bannerId, { image: data.url });
     } catch (err: any) {
-      alert("Error uploading image: " + err.message);
+      // Fallback directly to FileReader base64 if network/server upload fails
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          updateBanner(bannerId, { image: reader.result });
+        }
+      };
+      reader.onerror = () => {
+        alert("Error uploading image: " + err.message);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const uploadImageFile = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-    if (!res.ok) throw new Error("Upload failed");
-    const data = await res.json();
-    return data.url;
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      return data.url;
+    } catch (err: any) {
+      // Safe fallback directly using FileReader for client resilience
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") resolve(reader.result);
+          else reject(new Error("Failed to process image file"));
+        };
+        reader.onerror = () => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
   };
 
   // Authentication States
@@ -519,6 +544,16 @@ export default function AdminPage() {
   const [editingCategoryIndex, setEditingCategoryIndex] = useState<number | null>(null);
   const [editingCategoryValue, setEditingCategoryValue] = useState("");
 
+  // Pagination States
+  const [productsPage, setProductsPage] = useState(1);
+  const [productsPerPage, setProductsPerPage] = useState(6);
+
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [ordersPerPage, setOrdersPerPage] = useState(6);
+
+  const [categoriesPage, setCategoriesPage] = useState(1);
+  const [categoriesPerPage, setCategoriesPerPage] = useState(8);
+
   // Modals States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -590,6 +625,38 @@ export default function AdminPage() {
 
     return Array.from(map.values());
   }, [orders]);
+
+  // Derived Pagination Data
+  const totalProductPages = Math.max(1, Math.ceil(products.length / productsPerPage));
+  const paginatedProducts = React.useMemo(() => {
+    const start = (productsPage - 1) * productsPerPage;
+    return products.slice(start, start + productsPerPage);
+  }, [products, productsPage, productsPerPage]);
+
+  const totalOrderPages = Math.max(1, Math.ceil(orders.length / ordersPerPage));
+  const paginatedOrders = React.useMemo(() => {
+    const start = (ordersPage - 1) * ordersPerPage;
+    return orders.slice(start, start + ordersPerPage);
+  }, [orders, ordersPage, ordersPerPage]);
+
+  const totalCategoryPages = Math.max(1, Math.ceil(categoriesList.length / categoriesPerPage));
+  const paginatedCategories = React.useMemo(() => {
+    const start = (categoriesPage - 1) * categoriesPerPage;
+    return categoriesList.slice(start, start + categoriesPerPage);
+  }, [categoriesList, categoriesPage, categoriesPerPage]);
+
+  // Auto-clamp page numbers if items are deleted
+  React.useEffect(() => {
+    if (productsPage > totalProductPages) setProductsPage(totalProductPages);
+  }, [totalProductPages, productsPage]);
+
+  React.useEffect(() => {
+    if (ordersPage > totalOrderPages) setOrdersPage(totalOrderPages);
+  }, [totalOrderPages, ordersPage]);
+
+  React.useEffect(() => {
+    if (categoriesPage > totalCategoryPages) setCategoriesPage(totalCategoryPages);
+  }, [totalCategoryPages, categoriesPage]);
 
   // Handle Form Change
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -844,49 +911,76 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-3xl border border-slate-100 shadow-xl">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900 font-serif">
+      <div className="relative min-h-screen flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8 overflow-hidden bg-slate-900">
+        {/* Background Image Layer */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 filter brightness-[0.45] blur-[2px]"
+          style={{ backgroundImage: "url('/WebsiteImages/shop-hero-banner.jpg')" }}
+        />
+        
+        {/* Decorative Brand Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/90 via-slate-900/60 to-[#F46F20]/20 pointer-events-none" />
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#F46F20]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-brand-green-dark/30 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Premium Frosted Glass Modal Container */}
+        <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-3xl border border-white/60 shadow-2xl space-y-7">
+          {/* Brand Logo & Header */}
+          <div className="flex flex-col items-center text-center">
+            <div className="p-2.5 bg-white rounded-2xl shadow-md border border-slate-100 mb-3">
+              <img 
+                src="/logo.jpeg" 
+                alt="Akshvik Logo" 
+                className="h-16 w-auto object-contain" 
+              />
+            </div>
+            <div className="inline-block px-3 py-1 bg-[#FFEFE8] text-[#F46F20] text-[11px] font-extrabold uppercase tracking-widest rounded-full mb-2 border border-orange-100">
+              Admin Portal
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-quicksand">
               Akshvik Admin Login
             </h2>
-            <p className="mt-2 text-center text-sm text-slate-600">
-              Enter password to access the portal
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+              Secure administrative access for store management
             </p>
           </div>
-          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-            <div className="rounded-md shadow-xs">
-              <div>
-                <label className="sr-only">Password</label>
-                <input
-                  type="password"
-                  required
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="relative block w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-950 placeholder-slate-400 focus:z-10 focus:border-[#F46F20] focus:outline-hidden focus:ring-[#F46F20]/20 sm:text-sm"
-                  placeholder="Enter Admin Password"
-                />
-              </div>
+
+          <form className="space-y-5" onSubmit={handleLogin}>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Admin Password
+              </label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-slate-900 placeholder-slate-400 focus:border-[#F46F20] focus:outline-hidden focus:ring-3 focus:ring-[#F46F20]/20 text-sm font-medium transition shadow-xs"
+                placeholder="Enter password..."
+              />
             </div>
 
             {loginError && (
-              <div className="text-rose-600 text-sm text-center font-medium bg-rose-50 p-3 rounded-xl border border-rose-100">
-                {loginError}
+              <div className="text-rose-600 text-xs sm:text-sm text-center font-bold bg-rose-50 p-3 rounded-xl border border-rose-100">
+                ⚠️ {loginError}
               </div>
             )}
 
             <div>
               <button
                 type="submit"
-                className="group relative flex w-full justify-center rounded-2xl bg-[#F46F20] px-4 py-3 text-sm font-semibold text-white hover:bg-[#E05E12] transition cursor-pointer"
+                className="w-full flex justify-center items-center py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#F46F20] to-[#E05E12] text-white text-sm font-bold shadow-lg shadow-[#F46F20]/25 hover:shadow-xl hover:shadow-[#F46F20]/35 hover:brightness-105 active:scale-[0.99] transition cursor-pointer"
               >
-                Log In
+                Sign In to Dashboard
               </button>
             </div>
             
-            <div className="text-center">
-              <Link href="/" className="text-sm font-medium text-slate-500 hover:text-slate-800">
-                Return to Storefront
+            <div className="text-center pt-2">
+              <Link 
+                href="/" 
+                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors inline-flex items-center gap-1"
+              >
+                ← Return to Storefront
               </Link>
             </div>
           </form>
@@ -916,10 +1010,10 @@ export default function AdminPage() {
             <img 
               src="/logo.jpeg" 
               alt="Akshvik Logo" 
-              className="w-10 h-10 rounded-xl object-contain bg-white p-0.5 shadow-sm border border-slate-700 flex-shrink-0" 
+              className="w-13 h-13 rounded-xl object-contain bg-white p-1 shadow-sm border border-slate-700 flex-shrink-0" 
             />
             <div className="flex flex-col">
-              <span className="text-base font-extrabold tracking-tight text-white">Akshvik Admin</span>
+              <span className="text-base font-extrabold tracking-tight text-white leading-tight">Akshvik Admin</span>
               <span className="text-[10px] text-[#F46F20] font-bold uppercase tracking-wider">Boutique Portal</span>
             </div>
           </div>
@@ -1019,6 +1113,11 @@ export default function AdminPage() {
             >
               <Menu className="h-6 w-6" />
             </button>
+            <img 
+              src="/logo.jpeg" 
+              alt="Akshvik Logo" 
+              className="h-10 w-auto object-contain md:hidden rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs" 
+            />
             <h2 className="text-base md:text-lg font-bold text-slate-800 capitalize">{activeTab} Overview</h2>
           </div>
           <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm font-medium">
@@ -1214,7 +1313,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
-                      {products.map((p) => (
+                      {paginatedProducts.map((p) => (
                         <tr key={p.id} className="hover:bg-slate-50/55 transition-colors">
                           <td className="py-4 px-6">
                             <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex-shrink-0">
@@ -1262,6 +1361,64 @@ export default function AdminPage() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Products Pagination Controls */}
+                <div className="p-4 border-t border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 font-medium">
+                  <div className="flex items-center gap-2">
+                    <span>Showing</span>
+                    <span className="font-bold text-slate-800">
+                      {products.length === 0 ? 0 : (productsPage - 1) * productsPerPage + 1} - {Math.min(productsPage * productsPerPage, products.length)}
+                    </span>
+                    <span>of {products.length} products</span>
+                    <span className="mx-1 text-slate-300">|</span>
+                    <label className="text-slate-500">Per page:</label>
+                    <select
+                      value={productsPerPage}
+                      onChange={(e) => {
+                        setProductsPerPage(Number(e.target.value));
+                        setProductsPage(1);
+                      }}
+                      className="bg-white border border-slate-200 rounded-md px-2 py-1 font-bold text-slate-700 outline-none focus:border-[#F46F20]"
+                    >
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setProductsPage(prev => Math.max(1, prev - 1))}
+                      disabled={productsPage <= 1}
+                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Previous Page"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    {Array.from({ length: totalProductPages }, (_, i) => i + 1).map((pg) => (
+                      <button
+                        key={pg}
+                        onClick={() => setProductsPage(pg)}
+                        className={`h-7 min-w-[28px] px-2 rounded-lg font-bold text-xs transition ${
+                          productsPage === pg 
+                            ? "bg-[#F46F20] text-white shadow-xs" 
+                            : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        {pg}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setProductsPage(prev => Math.min(totalProductPages, prev + 1))}
+                      disabled={productsPage >= totalProductPages}
+                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Next Page"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1292,7 +1449,7 @@ export default function AdminPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 font-medium">
-                        {orders.map((o) => (
+                        {paginatedOrders.map((o) => (
                           <tr key={o.id} className="hover:bg-slate-50/55 transition-colors">
                             <td className="py-4 px-6 font-bold text-slate-800">
                               {o.orderId}
@@ -1374,6 +1531,64 @@ export default function AdminPage() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Orders Pagination Controls */}
+                  <div className="p-4 border-t border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 font-medium">
+                    <div className="flex items-center gap-2">
+                      <span>Showing</span>
+                      <span className="font-bold text-slate-800">
+                        {orders.length === 0 ? 0 : (ordersPage - 1) * ordersPerPage + 1} - {Math.min(ordersPage * ordersPerPage, orders.length)}
+                      </span>
+                      <span>of {orders.length} orders</span>
+                      <span className="mx-1 text-slate-300">|</span>
+                      <label className="text-slate-500">Per page:</label>
+                      <select
+                        value={ordersPerPage}
+                        onChange={(e) => {
+                          setOrdersPerPage(Number(e.target.value));
+                          setOrdersPage(1);
+                        }}
+                        className="bg-white border border-slate-200 rounded-md px-2 py-1 font-bold text-slate-700 outline-none focus:border-[#F46F20]"
+                      >
+                        <option value={5}>5</option>
+                        <option value={6}>6</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setOrdersPage(prev => Math.max(1, prev - 1))}
+                        disabled={ordersPage <= 1}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        title="Previous Page"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      {Array.from({ length: totalOrderPages }, (_, i) => i + 1).map((pg) => (
+                        <button
+                          key={pg}
+                          onClick={() => setOrdersPage(pg)}
+                          className={`h-7 min-w-[28px] px-2 rounded-lg font-bold text-xs transition ${
+                            ordersPage === pg 
+                              ? "bg-[#F46F20] text-white shadow-xs" 
+                              : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                          }`}
+                        >
+                          {pg}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setOrdersPage(prev => Math.min(totalOrderPages, prev + 1))}
+                        disabled={ordersPage >= totalOrderPages}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        title="Next Page"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1426,74 +1641,135 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                      {categoriesList.map((cat, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/55 transition-colors">
-                          <td className="py-4 px-6">
-                            {editingCategoryIndex === idx ? (
-                              <input
-                                type="text"
-                                value={editingCategoryValue}
-                                onChange={(e) => setEditingCategoryValue(e.target.value)}
-                                className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1 font-medium w-full max-w-sm text-sm"
-                              />
-                            ) : (
-                              <span className="font-bold text-slate-800">{cat}</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              {editingCategoryIndex === idx ? (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      if (!editingCategoryValue.trim()) return;
-                                      const newList = [...categoriesList];
-                                      newList[idx] = editingCategoryValue.trim();
-                                      syncCategories(newList);
-                                      setEditingCategoryIndex(null);
-                                    }}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition"
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingCategoryIndex(null)}
-                                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition"
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
+                      {paginatedCategories.map((cat, itemIdx) => {
+                        const actualIdx = (categoriesPage - 1) * categoriesPerPage + itemIdx;
+                        return (
+                          <tr key={actualIdx} className="hover:bg-slate-50/55 transition-colors">
+                            <td className="py-4 px-6">
+                              {editingCategoryIndex === actualIdx ? (
+                                <input
+                                  type="text"
+                                  value={editingCategoryValue}
+                                  onChange={(e) => setEditingCategoryValue(e.target.value)}
+                                  className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1 font-medium w-full max-w-sm text-sm"
+                                />
                               ) : (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      setEditingCategoryIndex(idx);
-                                      setEditingCategoryValue(cat);
-                                    }}
-                                    className="p-2 text-[#F46F20] hover:bg-[#FFEFE8] rounded-lg transition"
-                                    title="Edit"
-                                  >
-                                    <Edit className="h-4.5 w-4.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      if (confirm(`Are you sure you want to delete category "${cat}"?`)) {
-                                        syncCategories(categoriesList.filter((_, i) => i !== idx));
-                                      }
-                                    }}
-                                    className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="h-4.5 w-4.5" />
-                                  </button>
-                                </>
+                                <span className="font-bold text-slate-800">{cat}</span>
                               )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="py-4 px-6 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {editingCategoryIndex === actualIdx ? (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        if (!editingCategoryValue.trim()) return;
+                                        const newList = [...categoriesList];
+                                        newList[actualIdx] = editingCategoryValue.trim();
+                                        syncCategories(newList);
+                                        setEditingCategoryIndex(null);
+                                      }}
+                                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingCategoryIndex(null)}
+                                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setEditingCategoryIndex(actualIdx);
+                                        setEditingCategoryValue(cat);
+                                      }}
+                                      className="p-2 text-[#F46F20] hover:bg-[#FFEFE8] rounded-lg transition"
+                                      title="Edit"
+                                    >
+                                      <Edit className="h-4.5 w-4.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (confirm(`Are you sure you want to delete category "${cat}"?`)) {
+                                          syncCategories(categoriesList.filter((_, i) => i !== actualIdx));
+                                        }
+                                      }}
+                                      className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="h-4.5 w-4.5" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Categories Pagination Controls */}
+                <div className="p-4 border-t border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 font-medium">
+                  <div className="flex items-center gap-2">
+                    <span>Showing</span>
+                    <span className="font-bold text-slate-800">
+                      {categoriesList.length === 0 ? 0 : (categoriesPage - 1) * categoriesPerPage + 1} - {Math.min(categoriesPage * categoriesPerPage, categoriesList.length)}
+                    </span>
+                    <span>of {categoriesList.length} categories</span>
+                    <span className="mx-1 text-slate-300">|</span>
+                    <label className="text-slate-500">Per page:</label>
+                    <select
+                      value={categoriesPerPage}
+                      onChange={(e) => {
+                        setCategoriesPerPage(Number(e.target.value));
+                        setCategoriesPage(1);
+                      }}
+                      className="bg-white border border-slate-200 rounded-md px-2 py-1 font-bold text-slate-700 outline-none focus:border-[#F46F20]"
+                    >
+                      <option value={5}>5</option>
+                      <option value={8}>8</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setCategoriesPage(prev => Math.max(1, prev - 1))}
+                      disabled={categoriesPage <= 1}
+                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Previous Page"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    {Array.from({ length: totalCategoryPages }, (_, i) => i + 1).map((pg) => (
+                      <button
+                        key={pg}
+                        onClick={() => setCategoriesPage(pg)}
+                        className={`h-7 min-w-[28px] px-2 rounded-lg font-bold text-xs transition ${
+                          categoriesPage === pg 
+                            ? "bg-[#F46F20] text-white shadow-xs" 
+                            : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        {pg}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCategoriesPage(prev => Math.min(totalCategoryPages, prev + 1))}
+                      disabled={categoriesPage >= totalCategoryPages}
+                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Next Page"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
