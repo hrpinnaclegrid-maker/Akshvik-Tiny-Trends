@@ -16,7 +16,8 @@ export async function POST(req: Request) {
 
     // Try saving locally to public/WebsiteImages (works during local development)
     try {
-      const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      const filename = `${Date.now()}-${sanitizedName}`;
       const uploadDir = path.join(process.cwd(), "public", "WebsiteImages");
       await mkdir(uploadDir, { recursive: true });
       const filePath = path.join(uploadDir, filename);
@@ -24,9 +25,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: `/WebsiteImages/${filename}` });
     } catch (fsError: any) {
       // In serverless environments like Vercel, the local filesystem is read-only.
-      // Fallback safely to a base64 Data URL so the uploaded image displays perfectly across the app.
+      // Fallback safely to a lightweight base64 WebP Data URL.
       console.warn("Filesystem write unavailable (serverless/read-only), returning base64 Data URL fallback:", fsError?.message);
-      const mimeType = file.type || "image/jpeg";
+      const mimeType = file.type || "image/webp";
       const base64 = buffer.toString("base64");
       const dataUrl = `data:${mimeType};base64,${base64}`;
       return NextResponse.json({ url: dataUrl });

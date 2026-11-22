@@ -29,8 +29,10 @@ import {
   CloudUpload,
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
+import { convertImageToWebP } from "@/lib/imageUtils";
 
 const DragRepositionImage = ({
   src,
@@ -245,6 +247,16 @@ const PrimaryImageUploader = ({
   );
 };
 
+const parseGalleryImages = (val: string): string[] => {
+  if (!val) return [];
+  // Match complete Base64 Data URLs, root-relative paths, or full HTTP/HTTPS URLs without splitting Base64 on commas
+  const matches = val.match(/(data:image\/[a-zA-Z0-9.+_-]+;base64,[A-Za-z0-9+/=]+|\/[^\s,]+|https?:\/\/[^\s,]+)/g);
+  if (matches && matches.length > 0) {
+    return matches;
+  }
+  return val.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+};
+
 const GalleryImageUploader = ({
   value,
   onChange,
@@ -255,19 +267,17 @@ const GalleryImageUploader = ({
   onUpload: (file: File) => Promise<string>;
 }) => {
   const [loading, setLoading] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const getImagesList = () => {
-    return value
-      .split(",")
-      .map((img) => img.trim())
-      .filter(Boolean);
+    return parseGalleryImages(value);
   };
 
   const handleRemove = (index: number) => {
     const list = getImagesList();
     list.splice(index, 1);
-    onChange(list.join(", "));
+    onChange(list.join("\n"));
   };
 
   const processFile = async (file: File) => {
@@ -277,7 +287,7 @@ const GalleryImageUploader = ({
       const url = await onUpload(file);
       const list = getImagesList();
       list.push(url);
-      onChange(list.join(", "));
+      onChange(list.join("\n"));
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -285,25 +295,43 @@ const GalleryImageUploader = ({
     }
   };
 
+  const handleAddUrl = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    const parsed = parseGalleryImages(trimmed);
+    const list = getImagesList();
+    parsed.forEach((item) => list.push(item));
+    onChange(list.join("\n"));
+    setUrlInput("");
+  };
+
   const images = getImagesList();
 
   return (
     <div className="space-y-3">
-      <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1">
-        Gallery Images
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block">
+          Gallery Images
+        </label>
+        {images.length > 0 && (
+          <span className="text-[10px] text-slate-400 font-medium">
+            {images.length} {images.length === 1 ? "image" : "images"} added
+          </span>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-3 items-center">
         {images.map((img, index) => (
           <div 
             key={index}
-            className="relative w-20 h-20 bg-slate-50 border border-slate-200 rounded-[8px] overflow-hidden flex-shrink-0"
+            className="relative w-20 h-20 bg-slate-50 border border-slate-200 rounded-[8px] overflow-hidden flex-shrink-0 shadow-2xs"
           >
             <img src={img} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => handleRemove(index)}
-              className="absolute top-1 right-1 p-0.5 bg-black/60 hover:bg-black text-white rounded-full transition cursor-pointer flex items-center justify-center"
+              className="absolute top-1 right-1 p-0.5 bg-black/60 hover:bg-black text-white rounded-full transition cursor-pointer flex items-center justify-center shadow-xs"
+              title="Remove image"
             >
               <X className="h-3 w-3" />
             </button>
@@ -320,6 +348,7 @@ const GalleryImageUploader = ({
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) await processFile(file);
+              if (e.target) e.target.value = "";
             }}
             className="hidden"
             accept="image/*"
@@ -333,15 +362,30 @@ const GalleryImageUploader = ({
 
       <div>
         <label className="font-sans text-[10px] font-bold uppercase tracking-[0.06em] text-[#64748b] block mb-1">
-          Or paste comma-separated URLs
+          Or paste image URL
         </label>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="url1, url2, url3"
-          className="w-full h-[40px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddUrl();
+              }
+            }}
+            placeholder="https://example.com/photo.webp or /WebsiteImages/..."
+            className="flex-1 h-[40px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[13px] text-[#1e293b] font-medium transition-all outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleAddUrl}
+            className="px-3 h-[40px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-[8px] text-[12px] transition cursor-pointer flex-shrink-0"
+          >
+            Add
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -372,8 +416,9 @@ export default function AdminPage() {
 
   const handleBannerImageUpload = async (bannerId: string, file: File) => {
     try {
+      const webpFile = await convertImageToWebP(file, 1920, 1080, 0.82);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", webpFile);
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -383,23 +428,30 @@ export default function AdminPage() {
       updateBanner(bannerId, { image: data.url });
     } catch (err: any) {
       // Fallback directly to FileReader base64 if network/server upload fails
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          updateBanner(bannerId, { image: reader.result });
-        }
-      };
-      reader.onerror = () => {
+      try {
+        const webpFile = await convertImageToWebP(file, 1920, 1080, 0.82);
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            updateBanner(bannerId, { image: reader.result });
+          }
+        };
+        reader.onerror = () => {
+          alert("Error uploading image: " + err.message);
+        };
+        reader.readAsDataURL(webpFile);
+      } catch (e: any) {
         alert("Error uploading image: " + err.message);
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 
   const uploadImageFile = async (file: File): Promise<string> => {
     try {
+      // Automatically downscale and convert to WebP before uploading
+      const webpFile = await convertImageToWebP(file, 1200, 1200, 0.82);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", webpFile);
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -408,16 +460,21 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.error || "Upload failed");
       return data.url;
     } catch (err: any) {
-      // Safe fallback directly using FileReader for client resilience
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") resolve(reader.result);
-          else reject(new Error("Failed to process image file"));
-        };
-        reader.onerror = () => reject(err);
-        reader.readAsDataURL(file);
-      });
+      // Client-side fallback to compact WebP base64 Data URL
+      try {
+        const webpFile = await convertImageToWebP(file, 1200, 1200, 0.82);
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (typeof reader.result === "string") resolve(reader.result);
+            else reject(new Error("Failed to process image file"));
+          };
+          reader.onerror = () => reject(err);
+          reader.readAsDataURL(webpFile);
+        });
+      } catch (fallbackErr: any) {
+        throw new Error(err.message || "Failed to process image");
+      }
     }
   };
 
@@ -557,6 +614,7 @@ export default function AdminPage() {
   // Modals States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Form Field States
@@ -658,12 +716,25 @@ export default function AdminPage() {
     if (categoriesPage > totalCategoryPages) setCategoriesPage(totalCategoryPages);
   }, [totalCategoryPages, categoriesPage]);
 
-  // Handle Form Change
+  // Handle Form Change with Offer Auto-Calculation
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (e.target.type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setProductForm(prev => ({ ...prev, [name]: checked }));
+    } else if (name === "originalPrice" || name === "price") {
+      setProductForm(prev => {
+        const updated = { ...prev, [name]: value };
+        const orig = Number(updated.originalPrice) || 0;
+        const sale = Number(updated.price) || 0;
+        // Auto-calculate Offer (Discount = Original - Sale)
+        if (orig > 0 && sale > 0 && orig >= sale) {
+          updated.offerPrice = orig - sale;
+        } else {
+          updated.offerPrice = 0;
+        }
+        return updated;
+      });
     } else {
       setProductForm(prev => ({ ...prev, [name]: value }));
     }
@@ -677,9 +748,13 @@ export default function AdminPage() {
       category: product.category,
       price: product.price,
       originalPrice: product.originalPrice || 0,
-      offerPrice: product.offerPrice || 0,
+      offerPrice: product.originalPrice && product.price && product.originalPrice > product.price 
+        ? product.originalPrice - product.price 
+        : (product.offerPrice || 0),
       image: product.image,
-      images: product.images?.join(", ") || product.image,
+      images: Array.isArray(product.images) && product.images.length > 0 
+        ? product.images.join("\n") 
+        : (product.image || ""),
       description: product.description,
       sizes: product.sizes?.join(", ") || "",
       colors: product.colors?.join(", ") || "",
@@ -697,68 +772,110 @@ export default function AdminPage() {
   // Submit Add Product
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const sizesArray = productForm.sizes.split(",").map(s => s.trim()).filter(Boolean);
-    const colorsArray = productForm.colors.split(",").map(c => c.trim()).filter(Boolean);
-    const imagesArray = productForm.images.split(",").map(img => img.trim()).filter(Boolean);
+    if (isSavingProduct) return;
 
-    await addProduct({
-      name: productForm.name,
-      category: productForm.category,
-      price: Number(productForm.price),
-      originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
-      offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
-      image: productForm.image || "/logo.jpeg",
-      images: imagesArray.length > 0 ? imagesArray : [productForm.image || "/logo.jpeg"],
-      description: productForm.description,
-      sizes: sizesArray.length > 0 ? sizesArray : undefined,
-      colors: colorsArray.length > 0 ? colorsArray : undefined,
-      rating: 5.0,
-      reviewsCount: 0,
-      sku: productForm.sku || `SKU-${Date.now().toString().slice(-6)}`,
-      fabric: productForm.fabric || "100% Organic Cotton",
-      brand: productForm.brand || "Akshvik",
-      ageGroup: productForm.ageGroup || "0-3 Months",
-      stockQuantity: Number(productForm.stockQuantity) || 0,
-      videoUrl: productForm.videoUrl || "",
-      isLiveSale: Boolean(productForm.isLiveSale)
-    });
+    if (!productForm.name.trim()) {
+      alert("Please enter a product name.");
+      return;
+    }
+    if (!productForm.price || Number(productForm.price) <= 0) {
+      alert("Please enter a valid sale price.");
+      return;
+    }
+    if (!productForm.image) {
+      alert("Please upload or provide a primary image for the product.");
+      return;
+    }
 
-    setIsAddModalOpen(false);
-    resetForm();
+    setIsSavingProduct(true);
+    try {
+      const sizesArray = productForm.sizes.split(",").map(s => s.trim()).filter(Boolean);
+      const colorsArray = productForm.colors.split(",").map(c => c.trim()).filter(Boolean);
+      const imagesArray = parseGalleryImages(productForm.images);
+
+      await addProduct({
+        name: productForm.name.trim(),
+        category: productForm.category,
+        price: Number(productForm.price),
+        originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
+        offerPrice: undefined,
+        image: productForm.image || "/logo.jpeg",
+        images: imagesArray.length > 0 ? imagesArray : [productForm.image || "/logo.jpeg"],
+        description: productForm.description.trim() || productForm.name.trim(),
+        sizes: sizesArray.length > 0 ? sizesArray : undefined,
+        colors: colorsArray.length > 0 ? colorsArray : undefined,
+        rating: 5.0,
+        reviewsCount: 0,
+        sku: productForm.sku.trim() || `ATT-${Date.now().toString().slice(-6)}`,
+        fabric: productForm.fabric.trim() || "100% Organic Cotton",
+        brand: productForm.brand.trim() || "Akshvik Tiny Trends",
+        ageGroup: productForm.ageGroup || "0-3 Months",
+        stockQuantity: Number(productForm.stockQuantity) || 0,
+        videoUrl: productForm.videoUrl.trim() || "",
+        isLiveSale: Boolean(productForm.isLiveSale)
+      });
+
+      setIsAddModalOpen(false);
+      resetForm();
+      alert("Product saved successfully!");
+    } catch (err: any) {
+      console.error("Save product error:", err);
+      alert("Failed to save product: " + (err.message || "Unknown error occurred."));
+    } finally {
+      setIsSavingProduct(false);
+    }
   };
 
   // Submit Edit Product
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct) return;
+    if (!editingProduct || isSavingProduct) return;
 
-    const sizesArray = productForm.sizes.split(",").map(s => s.trim()).filter(Boolean);
-    const colorsArray = productForm.colors.split(",").map(c => c.trim()).filter(Boolean);
-    const imagesArray = productForm.images.split(",").map(img => img.trim()).filter(Boolean);
+    if (!productForm.name.trim()) {
+      alert("Please enter a product name.");
+      return;
+    }
+    if (!productForm.price || Number(productForm.price) <= 0) {
+      alert("Please enter a valid sale price.");
+      return;
+    }
 
-    await updateProduct(editingProduct.id, {
-      name: productForm.name,
-      category: productForm.category,
-      price: Number(productForm.price),
-      originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
-      offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
-      image: productForm.image,
-      images: imagesArray.length > 0 ? imagesArray : [productForm.image],
-      description: productForm.description,
-      sizes: sizesArray.length > 0 ? sizesArray : undefined,
-      colors: colorsArray.length > 0 ? colorsArray : undefined,
-      sku: productForm.sku,
-      fabric: productForm.fabric,
-      brand: productForm.brand,
-      ageGroup: productForm.ageGroup,
-      stockQuantity: Number(productForm.stockQuantity),
-      videoUrl: productForm.videoUrl,
-      isLiveSale: Boolean(productForm.isLiveSale)
-    });
+    setIsSavingProduct(true);
+    try {
+      const sizesArray = productForm.sizes.split(",").map(s => s.trim()).filter(Boolean);
+      const colorsArray = productForm.colors.split(",").map(c => c.trim()).filter(Boolean);
+      const imagesArray = parseGalleryImages(productForm.images);
 
-    setIsEditModalOpen(false);
-    setEditingProduct(null);
-    resetForm();
+      await updateProduct(editingProduct.id, {
+        name: productForm.name.trim(),
+        category: productForm.category,
+        price: Number(productForm.price),
+        originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
+        offerPrice: undefined,
+        image: productForm.image,
+        images: imagesArray.length > 0 ? imagesArray : [productForm.image],
+        description: productForm.description.trim() || productForm.name.trim(),
+        sizes: sizesArray.length > 0 ? sizesArray : undefined,
+        colors: colorsArray.length > 0 ? colorsArray : undefined,
+        sku: productForm.sku.trim(),
+        fabric: productForm.fabric.trim(),
+        brand: productForm.brand.trim(),
+        ageGroup: productForm.ageGroup,
+        stockQuantity: Number(productForm.stockQuantity) || 0,
+        videoUrl: productForm.videoUrl.trim() || "",
+        isLiveSale: Boolean(productForm.isLiveSale)
+      });
+
+      setIsEditModalOpen(false);
+      setEditingProduct(null);
+      resetForm();
+      alert("Product updated successfully!");
+    } catch (err: any) {
+      console.error("Update product error:", err);
+      alert("Failed to update product: " + (err.message || "Unknown error occurred."));
+    } finally {
+      setIsSavingProduct(false);
+    }
   };
 
   const resetForm = () => {
@@ -2276,9 +2393,9 @@ export default function AdminPage() {
                           <input 
                             type="number" 
                             name="originalPrice" 
-                            value={productForm.originalPrice} 
+                            value={productForm.originalPrice || ""} 
                             onChange={handleFormChange}
-                            placeholder="0"
+                            placeholder="e.g. 799"
                             className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
@@ -2288,21 +2405,28 @@ export default function AdminPage() {
                             type="number" 
                             name="price" 
                             required
-                            value={productForm.price} 
+                            value={productForm.price || ""} 
                             onChange={handleFormChange}
-                            placeholder="0"
+                            placeholder="e.g. 540"
                             className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
-                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Offer (₹)</label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block">Offer (₹)</label>
+                            {Number(productForm.originalPrice) > 0 && Number(productForm.price) > 0 && Number(productForm.originalPrice) > Number(productForm.price) && (
+                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                {Math.round(((Number(productForm.originalPrice) - Number(productForm.price)) / Number(productForm.originalPrice)) * 100)}% OFF
+                              </span>
+                            )}
+                          </div>
                           <input 
                             type="number" 
                             name="offerPrice" 
-                            value={productForm.offerPrice} 
+                            value={productForm.offerPrice || ""} 
                             onChange={handleFormChange}
-                            placeholder="Optional"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            placeholder="Auto-calculated"
+                            className="w-full h-[48px] bg-slate-50 border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-emerald-700 font-bold transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2446,9 +2570,20 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2"
+                  disabled={isSavingProduct}
+                  className={`w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2 ${
+                    isSavingProduct ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
                 >
-                  <Check className="h-5 w-5" /> Save Product
+                  {isSavingProduct ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" /> Saving Product...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-5 w-5" /> Save Product
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -2582,9 +2717,9 @@ export default function AdminPage() {
                           <input 
                             type="number" 
                             name="originalPrice" 
-                            value={productForm.originalPrice} 
+                            value={productForm.originalPrice || ""} 
                             onChange={handleFormChange}
-                            placeholder="0"
+                            placeholder="e.g. 799"
                             className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
@@ -2594,21 +2729,28 @@ export default function AdminPage() {
                             type="number" 
                             name="price" 
                             required
-                            value={productForm.price} 
+                            value={productForm.price || ""} 
                             onChange={handleFormChange}
-                            placeholder="0"
+                            placeholder="e.g. 540"
                             className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
                           />
                         </div>
                         <div>
-                          <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block mb-1.5">Offer (₹)</label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748b] block">Offer (₹)</label>
+                            {Number(productForm.originalPrice) > 0 && Number(productForm.price) > 0 && Number(productForm.originalPrice) > Number(productForm.price) && (
+                              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                {Math.round(((Number(productForm.originalPrice) - Number(productForm.price)) / Number(productForm.originalPrice)) * 100)}% OFF
+                              </span>
+                            )}
+                          </div>
                           <input 
                             type="number" 
                             name="offerPrice" 
-                            value={productForm.offerPrice} 
+                            value={productForm.offerPrice || ""} 
                             onChange={handleFormChange}
-                            placeholder="Optional"
-                            className="w-full h-[48px] bg-white border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-[#1e293b] font-medium transition-all outline-none"
+                            placeholder="Auto-calculated"
+                            className="w-full h-[48px] bg-slate-50 border border-[#e2e8f0] focus:border-[#F46F20] focus:ring-2 focus:ring-[#F46F20]/15 rounded-[8px] px-3 text-[14px] text-emerald-700 font-bold transition-all outline-none"
                           />
                         </div>
                       </div>
@@ -2752,9 +2894,20 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2"
+                  disabled={isSavingProduct}
+                  className={`w-full h-[52px] bg-[#F46F20] hover:bg-[#E05E12] text-white font-bold rounded-[8px] transition-all text-sm cursor-pointer shadow-md shadow-[#F46F20]/20 flex items-center justify-center gap-2 ${
+                    isSavingProduct ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
                 >
-                  <Check className="h-5 w-5" /> Save Changes
+                  {isSavingProduct ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" /> Updating Product...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-5 w-5" /> Save Changes
+                    </>
+                  )}
                 </button>
               </div>
             </form>
